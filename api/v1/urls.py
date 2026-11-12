@@ -3,6 +3,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from . import views
 from . import auth_views
+from subscriptions import views as subscription_views
 
 app_name = "api-v1"
 
@@ -21,4 +22,9 @@ urlpatterns = [
     path("auth/token/refresh/", TokenRefreshView.as_view(), name="auth-token-refresh"),
     path("auth/logout/", auth_views.LogoutAPIView.as_view(), name="auth-logout"),
     path("auth/me/", auth_views.MeAPIView.as_view(), name="auth-me"),
+
+    # Subscriptions
+    path("plans/", subscription_views.PlanListAPIView.as_view(), name="plan-list"),
+    path("subscriptions/", subscription_views.CreateSubscriptionAPIView.as_view(), name="subscription-create"),
+    path("subscriptions/me/", subscription_views.MySubscriptionAPIView.as_view(), name="subscription-me"),
 ]
