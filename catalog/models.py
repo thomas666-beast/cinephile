@@ -4,6 +4,19 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 
+import uuid
+
+
+def video_upload_path(instance, filename):
+    """
+    Build a deterministic, collision-free path:
+      videos/movies/<movie_id>/<uuid>.mp4
+      videos/episodes/<episode_id>/<uuid>.mp4
+    """
+    ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else "mp4"
+    parent_type = "movies" if instance.movie_id else "episodes"
+    parent_id = instance.movie_id or instance.episode_id
+    return f"videos/{parent_type}/{parent_id}/{uuid.uuid4().hex}.{ext}"
 
 class PublishStatus(models.TextChoices):
     DRAFT = "draft", "Draft"
@@ -142,3 +155,79 @@ class Episode(TimeStampedModel):
 
     def __str__(self):
         return f"S{self.season.number:02d}E{self.number:02d} — {self.title}"
+
+class VideoAsset(TimeStampedModel):
+    """
+    A raw video file attached to a Movie or Episode.
+    Stored on local disk for now; swap to S3 by changing `video_file.storage` later.
+    """
+
+    class Status(models.TextChoices):
+        PENDING = "pending", "Pending upload"
+        UPLOADED = "uploaded", "Uploaded"
+        PROCESSING = "processing", "Processing"
+        READY = "ready", "Ready"
+        FAILED = "failed", "Failed"
+
+    movie = models.ForeignKey(
+        Movie, null=True, blank=True, on_delete=models.CASCADE, related_name="videos"
+    )
+    episode = models.ForeignKey(
+        Episode, null=True, blank=True, on_delete=models.CASCADE, related_name="videos"
+    )
+
+    video_file = models.FileField(upload_to=video_upload_path, max_length=500)
+    original_filename = models.CharField(max_length=255, blank=True)
+    file_size_bytes = models.BigIntegerField(null=True, blank=True)
+    mime_type = models.CharField(max_length=100, blank=True)
+
+    status = models.CharField(
+        max_length=20, choices=Status.choices, default=Status.PENDING
+    )
+
+    # Filled in by Task 11 (transcoding)
+    hls_manifest_path = models.CharField(max_length=500, blank=True)
+    processing_error = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    models.Q(movie__isnull=False, episode__isnull=True)
+                    | models.Q(movie__isnull=True, episode__isnull=False)
+                ),
+                name="video_asset_exactly_one_parent",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["status"]),
+            models.Index(fields=["movie", "status"]),
+            models.Index(fields=["episode", "status"]),
+        ]
+
+    def __str__(self):
+        parent = self.movie or self.episode
+        return f"Video for {parent} ({self.status})"
+
+    @property
+    def content_type(self):
+        return "movie" if self.movie_id else "episode"
+
+    @property
+    def content_id(self):
+        return self.movie_id or self.episode_id
+
+    def save(self, *args, **kwargs):
+        # After the file is saved, record its real metadata and mark uploaded.
+        if self.video_file and self.video_file.name:
+            if not self.original_filename:
+                import os
+                self.original_filename = os.path.basename(self.video_file.name)
+            try:
+                self.file_size_bytes = self.video_file.size
+            except (OSError, ValueError):
+                pass
+            if self.status == self.Status.PENDING:
+                self.status = self.Status.UPLOADED
+        super().save(*args, **kwargs)

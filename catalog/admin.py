@@ -4,6 +4,8 @@ from django.utils.html import format_html
 from .admin_mixins import PublishActionsMixin, ThumbnailMixin
 from .models import Genre, Movie, Series, Season, Episode
 
+from .forms import VideoAssetForm
+from .models import VideoAsset
 
 @admin.register(Genre)
 class GenreAdmin(admin.ModelAdmin):
@@ -99,3 +101,35 @@ class EpisodeAdmin(PublishActionsMixin, ThumbnailMixin, admin.ModelAdmin):
     search_fields = ("title", "synopsis", "season__series__title", "season__title")
     readonly_fields = ("created_at", "updated_at")
     date_hierarchy = "created_at"
+
+
+class VideoAssetInline(admin.StackedInline):
+    model = VideoAsset
+    form = VideoAssetForm
+    extra = 0
+    fields = (
+        ("movie", "episode"),
+        "video_file",
+        "mime_type",
+        "original_filename",
+        "file_size_bytes",
+        "status",
+        "hls_manifest_path",
+        "processing_error",
+    )
+    readonly_fields = (
+        "original_filename", "file_size_bytes", "status",
+        "hls_manifest_path", "processing_error",
+    )
+
+
+@admin.register(VideoAsset)
+class VideoAssetAdmin(admin.ModelAdmin):
+    form = VideoAssetForm
+    list_display = ("__str__", "status", "content_type", "content_id", "file_size_bytes", "created_at")
+    list_filter = ("status",)
+    search_fields = ("original_filename", "movie__title", "episode__title")
+    readonly_fields = (
+        "original_filename", "file_size_bytes", "hls_manifest_path",
+        "processing_error", "created_at", "updated_at",
+    )

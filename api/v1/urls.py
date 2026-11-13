@@ -5,6 +5,7 @@ from . import views
 from . import auth_views
 from subscriptions import views as subscription_views
 from . import playback_views
+from . import admin_views
 
 app_name = "api-v1"
 
@@ -32,4 +33,8 @@ urlpatterns = [
     # Playback
     path("playback/movies/<slug:slug>/", playback_views.MoviePlaybackAPIView.as_view(), name="playback-movie"),
     path("playback/episodes/<int:pk>/", playback_views.EpisodePlaybackAPIView.as_view(), name="playback-episode"),
+
+    # Video
+    path("admin/videos/", admin_views.VideoUploadAPIView.as_view(), name="admin-video-upload"),
+    path("admin/videos/<int:pk>/complete/", admin_views.CompleteVideoUploadAPIView.as_view(), name="admin-video-complete"),
 ]
