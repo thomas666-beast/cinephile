@@ -8,6 +8,8 @@ from .admin_content_serializers import (
     AdminSeasonSerializer, AdminEpisodeSerializer,
 )
 
+from subscriptions.models import SubscriptionPlan
+from rest_framework import serializers
 
 class IsStaff(permissions.BasePermission):
     message = "Admin access required."
@@ -118,3 +120,16 @@ class AdminStatsAPIView(APIView):
                 "active": Subscription.objects.filter(status=Subscription.Status.ACTIVE).count(),
             },
         })
+
+
+class AdminPlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubscriptionPlan
+        fields = ("id", "name", "slug", "description", "price_cents", "currency", "billing_period", "duration_days", "is_active")
+        read_only_fields = ("id", "slug")
+
+class AdminPlanViewSet(viewsets.ModelViewSet):
+    queryset = SubscriptionPlan.objects.all().order_by("price_cents")
+    serializer_class = AdminPlanSerializer
+    permission_classes = [IsStaff]
+    lookup_field = "slug"

@@ -72,22 +72,19 @@ function videoStateLabel(row: AdminMovieRow): string {
       </template>
     </AdminPageHeader>
 
-    <div class="flex flex-wrap gap-3 mb-6 items-end">
-      <div class="flex-1 min-w-[200px]">
-        <label for="search" class="label-caps block mb-2">{{ t("admin.searchPlaceholder") }}</label>
+    <div class="flex items-end gap-4 mb-4">
+      <div class="flex-1 max-w-xs">
         <input
-          id="search"
           v-model="search"
           type="search"
-          class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-3 py-2 text-paper-100 outline-none"
+          :placeholder="t('admin.searchPlaceholder')"
+          class="w-full bg-transparent border border-paper-300/30 focus:border-paper-100 px-3 py-1.5 text-sm text-paper-100 outline-none"
         />
       </div>
       <div>
-        <label for="status" class="label-caps block mb-2">{{ t("admin.colStatus") }}</label>
         <select
-          id="status"
           v-model="statusFilter"
-          class="bg-transparent border border-paper-300/40 focus:border-paper-100 px-3 py-2 text-paper-100 outline-none"
+          class="bg-transparent border border-paper-300/30 focus:border-paper-100 px-3 py-1.5 text-sm text-paper-100 outline-none"
         >
           <option value="">{{ t("admin.filterAll") }}</option>
           <option value="draft">{{ t("admin.statusDraft") }}</option>
@@ -96,61 +93,48 @@ function videoStateLabel(row: AdminMovieRow): string {
       </div>
     </div>
 
-    <div class="frame">
-      <table class="w-full text-left">
-        <thead>
-          <tr class="border-b border-paper-300/20">
-            <th class="label-caps px-4 py-3">{{ t("admin.colTitle") }}</th>
-            <th class="label-caps px-4 py-3">{{ t("admin.colYear") }}</th>
-            <th class="label-caps px-4 py-3">{{ t("admin.colStatus") }}</th>
-            <th class="label-caps px-4 py-3">{{ t("admin.colVideo") }}</th>
-            <th class="label-caps px-4 py-3 text-right">{{ t("admin.colActions") }}</th>
+    <div class="border border-paper-300/20">
+      <table class="w-full text-left text-sm">
+        <thead class="bg-noir-900 border-b border-paper-300/20">
+          <tr>
+            <th class="label-caps px-4 py-2 font-normal text-paper-300">{{ t("admin.colTitle") }}</th>
+            <th class="label-caps px-4 py-2 font-normal text-paper-300">{{ t("admin.colYear") }}</th>
+            <th class="label-caps px-4 py-2 font-normal text-paper-300">{{ t("admin.colStatus") }}</th>
+            <th class="label-caps px-4 py-2 font-normal text-paper-300">{{ t("admin.colVideo") }}</th>
+            <th class="label-caps px-4 py-2 font-normal text-paper-300 text-right">{{ t("admin.colActions") }}</th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="loading">
-            <td colspan="5" class="px-4 py-8 text-center label-caps">{{ t("common.loading") }}</td>
+            <td colspan="5" class="px-4 py-12 text-center label-caps text-paper-300/60">{{ t("common.loading") }}</td>
           </tr>
           <tr v-else-if="rows.length === 0">
-            <td colspan="5" class="px-4 py-8 text-center label-caps">{{ t("admin.noRows") }}</td>
+            <td colspan="5" class="px-4 py-12 text-center label-caps text-paper-300/60">{{ t("admin.noRows") }}</td>
           </tr>
           <tr
             v-for="row in rows"
             :key="row.id"
-            class="border-b border-paper-300/15 last:border-b-0"
+            class="border-b border-paper-300/10 last:border-b-0 hover:bg-noir-800/40 transition-colors"
           >
-            <td class="px-4 py-3 font-serif text-base">{{ row.title }}</td>
-            <td class="px-4 py-3 label-caps">{{ row.release_year ?? "—" }}</td>
-            <td class="px-4 py-3 label-caps">
-              {{ row.status === "published" ? t("admin.statusPublished") : t("admin.statusDraft") }}
+            <td class="px-4 py-2 text-paper-100">{{ row.title }}</td>
+            <td class="px-4 py-2 text-paper-300">{{ row.release_year ?? "—" }}</td>
+            <td class="px-4 py-2">
+              <span class="inline-block w-2 h-2 rounded-full mr-2" :class="row.status === 'published' ? 'bg-green-500' : 'bg-yellow-500'" />
+              <span class="text-paper-300">{{ row.status === "published" ? t("admin.statusPublished") : t("admin.statusDraft") }}</span>
             </td>
-            <td class="px-4 py-3 label-caps">{{ videoStateLabel(row) }}</td>
-            <td class="px-4 py-3 text-right">
-              <div class="flex items-center justify-end gap-3 label-caps">
-                <RouterLink :to="`/admin/movies/${row.slug}`" class="hover:text-paper-100">
+            <td class="px-4 py-2 text-paper-300">{{ videoStateLabel(row) }}</td>
+            <td class="px-4 py-2 text-right">
+              <div class="flex items-center justify-end gap-3 label-caps text-xs">
+                <RouterLink :to="`/admin/movies/${row.slug}`" class="text-paper-300 hover:text-paper-100">
                   {{ t("admin.edit") }}
                 </RouterLink>
-                <button
-                  v-if="row.status === 'draft'"
-                  type="button"
-                  class="hover:text-blood-500"
-                  @click="onPublish(row.slug)"
-                >
+                <button v-if="row.status === 'draft'" type="button" class="text-paper-300 hover:text-paper-100" @click="onPublish(row.slug)">
                   {{ t("admin.publish") }}
                 </button>
-                <button
-                  v-else
-                  type="button"
-                  class="hover:text-paper-100"
-                  @click="onUnpublish(row.slug)"
-                >
+                <button v-else type="button" class="text-paper-300 hover:text-paper-100" @click="onUnpublish(row.slug)">
                   {{ t("admin.unpublish") }}
                 </button>
-                <button
-                  type="button"
-                  class="hover:text-blood-500"
-                  @click="onDelete(row.slug)"
-                >
+                <button type="button" class="text-paper-300 hover:text-blood-500" @click="onDelete(row.slug)">
                   {{ t("admin.delete") }}
                 </button>
               </div>

@@ -84,6 +84,7 @@ export const router = createRouter({
         { path: "series/new", name: "admin-series-new", component: () => import("../views/admin/AdminSeriesEditView.vue") },
         { path: "series/:slug", name: "admin-series-edit", component: () => import("../views/admin/AdminSeriesEditView.vue") },
         { path: "genres", name: "admin-genres", component: () => import("../views/admin/AdminGenresView.vue") },
+        { path: "plans", name: "admin-plans", component: () => import("../views/admin/AdminPlansView.vue") },
       ],
     },
     {
@@ -91,5 +92,6 @@ export const router = createRouter({
       name: "search",
       component: () => import("../views/SearchView.vue"),
     },
+  
   ],
 });

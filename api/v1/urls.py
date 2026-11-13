@@ -9,7 +9,7 @@ from . import search_views
 from rest_framework.routers import DefaultRouter
 from .admin_content_views import (
     AdminGenreViewSet, AdminMovieViewSet, AdminSeriesViewSet,
-    AdminSeasonViewSet, AdminEpisodeViewSet, AdminStatsAPIView,
+    AdminSeasonViewSet, AdminEpisodeViewSet, AdminStatsAPIView, AdminPlanViewSet
 )
 from .password_reset_views import (
     PasswordResetRequestAPIView, PasswordResetConfirmAPIView,
@@ -25,6 +25,7 @@ router.register("admin/seasons", AdminSeasonViewSet, basename="admin-season")
 router.register("admin/episodes", AdminEpisodeViewSet, basename="admin-episode")
 router.register("admin/genres", AdminGenreViewSet, basename="admin-genre")
 router.register("profiles", ProfileViewSet, basename="profile")
+router.register("admin/plans", AdminPlanViewSet, basename="admin-plan")
 
 urlpatterns = [
     # Catalog

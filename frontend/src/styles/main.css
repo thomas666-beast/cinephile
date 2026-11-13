@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import "./tokens.css";
 
-/* ---------- Base ---------- */
 html, body, #app {
   height: 100%;
 }
@@ -10,7 +9,6 @@ body {
   background-color: var(--color-noir-950);
   color: var(--color-paper-100);
   font-family: var(--font-sans);
-  font-feature-settings: "ss01", "cv11"; /* Inter niceties */
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -18,36 +16,30 @@ body {
 h1, h2, h3, h4 {
   font-family: var(--font-serif);
   font-weight: 500;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em; /* tighter, more cinematic */
 }
 
-/* ---------- Typography utilities tied to the design language ---------- */
+/* Tighter, more professional labels */
 .label-caps {
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--color-paper-300);
 }
 
-/* ---------- The frame ----------
-   A hairline border used to frame focal content. */
 .frame {
   border: 1px solid var(--color-paper-300);
 }
 
-/* ---------- Focus ---------- */
+/* Modern focus ring */
 :focus-visible {
   outline: none;
-  box-shadow: var(--focus-ring);
-  border-radius: 0;
+  box-shadow: 0 0 0 1px var(--color-blood-500);
 }
 
-/* ---------- Reduced motion ---------- */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
+/* Fix native checkboxes/radios if used later */
+input[type="checkbox"] {
+  accent-color: var(--color-blood-500);
 }

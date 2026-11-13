@@ -71,20 +71,21 @@ async function addProfile() {
     <h1 class="font-serif text-3xl md:text-4xl mb-2">{{ t("subscription.myAccountTitle") }}</h1>
     <p class="text-paper-300 mb-12">{{ t("subscription.myAccountSubtitle") }}</p>
 
-    <!-- Subscription -->
+    <!-- Subscription Section -->
     <section>
       <h2 class="label-caps mb-4">{{ t("subscription.subscriptionSection") }}</h2>
 
       <p v-if="subs.loadingCurrent" class="label-caps">{{ t("common.loading") }}</p>
 
-      <div v-else-if="subs.current" class="frame p-6">
-        <p class="label-caps mb-2">{{ t("subscription.currentPlan") }}</p>
-        <p class="font-serif text-2xl mb-1">{{ subs.current.plan.name }}</p>
-        <p class="text-paper-300 text-sm mb-6">
-          {{ t("subscription.activeUntil", { date: formattedExpiry }) }}
-        </p>
+      <template v-else>
+        <!-- Active subscription -->
+        <div v-if="subs.current" class="frame p-6">
+          <p class="label-caps mb-2">{{ t("subscription.currentPlan") }}</p>
+          <p class="font-serif text-2xl mb-1">{{ subs.current.plan.name }}</p>
+          <p class="text-paper-300 text-sm mb-6">
+            {{ t("subscription.activeUntil", { date: formattedExpiry }) }}
+          </p>
 
-        <div v-if="!showCancelConfirm">
           <button
             type="button"
             class="frame px-4 py-2 label-caps hover:border-blood-500 hover:text-blood-500 transition-colors"
@@ -95,44 +96,21 @@ async function addProfile() {
           </button>
         </div>
 
-        <div v-else class="border-t border-paper-300/20 pt-5">
-          <p class="font-serif text-lg mb-2">{{ t("subscription.cancelConfirmTitle") }}</p>
-          <p class="text-paper-300 text-sm mb-5">{{ t("subscription.cancelConfirmBody") }}</p>
-          <p v-if="error" class="text-blood-500 text-sm mb-3">{{ error }}</p>
-          <div class="flex gap-2">
-            <button
-              type="button"
-              class="bg-blood-500 hover:bg-blood-700 text-paper-100 label-caps px-4 py-2 disabled:opacity-60"
-              :disabled="canceling"
-              @click="onCancel"
-            >
-              {{ canceling ? t("common.loading") : t("subscription.cancelConfirmDo") }}
-            </button>
-            <button
-              type="button"
-              class="frame px-4 py-2 label-caps hover:border-paper-100"
-              :disabled="canceling"
-              @click="showCancelConfirm = false"
-            >
-              {{ t("subscription.cancelConfirmKeep") }}
-            </button>
-          </div>
+        <!-- No subscription -->
+        <div v-else class="frame p-6">
+          <p class="label-caps mb-2">{{ t("subscription.noActiveSubscription") }}</p>
+          <p class="text-paper-300 text-sm mb-5">{{ t("subscription.notSubscribedDescription") }}</p>
+          <RouterLink
+            to="/plans"
+            class="inline-block bg-blood-500 hover:bg-blood-700 text-paper-100 label-caps px-4 py-2"
+          >
+            {{ t("subscription.choosePlan") }}
+          </RouterLink>
         </div>
-      </div>
-
-      <div v-else class="frame p-6">
-        <p class="label-caps mb-2">{{ t("subscription.noActiveSubscription") }}</p>
-        <p class="text-paper-300 text-sm mb-5">{{ t("subscription.notSubscribedDescription") }}</p>
-        <RouterLink
-          to="/plans"
-          class="inline-block bg-blood-500 hover:bg-blood-700 text-paper-100 label-caps px-4 py-2"
-        >
-          {{ t("subscription.choosePlan") }}
-        </RouterLink>
-      </div>
+      </template>
     </section>
 
-    <!-- Profiles -->
+    <!-- Profiles Section -->
     <section class="mt-12">
       <h2 class="label-caps mb-4">{{ t("profiles.sectionTitle") }}</h2>
 
@@ -181,5 +159,40 @@ async function addProfile() {
       </form>
       <p v-if="profileError" class="mt-2 text-sm text-blood-500">{{ profileError }}</p>
     </section>
+
+    <!-- Cancel Confirmation Modal -->
+    <Teleport to="body">
+      <div
+        v-if="showCancelConfirm"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+      >
+        <div class="frame bg-noir-950 p-8 max-w-md w-full">
+          <p class="label-caps mb-2 text-blood-500">{{ t("subscription.cancel") }}</p>
+          <p class="font-serif text-2xl mb-4">{{ t("subscription.cancelConfirmTitle") }}</p>
+          <p class="text-paper-300 text-sm mb-8">{{ t("subscription.cancelConfirmBody") }}</p>
+
+          <p v-if="error" class="text-blood-500 text-sm mb-4">{{ error }}</p>
+
+          <div class="flex gap-3 justify-end">
+            <button
+              type="button"
+              class="frame px-4 py-2 label-caps hover:border-paper-100"
+              :disabled="canceling"
+              @click="showCancelConfirm = false"
+            >
+              {{ t("subscription.cancelConfirmKeep") }}
+            </button>
+            <button
+              type="button"
+              class="bg-blood-500 hover:bg-blood-700 text-paper-100 label-caps px-4 py-2 disabled:opacity-60"
+              :disabled="canceling"
+              @click="onCancel"
+            >
+              {{ canceling ? t("common.loading") : t("subscription.cancelConfirmDo") }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </section>
 </template>

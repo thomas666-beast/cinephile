@@ -145,6 +145,8 @@ export default {
     plans: "Plans",
     genres: "Genres",
     navSection: "Admin",
+    create: "Create",
+    newPlan: "New plan",
 
     dashboardTitle: "Dashboard",
     dashboardSubtitle: "The state of the platform at a glance.",
