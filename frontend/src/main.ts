@@ -4,6 +4,8 @@ import App from "./App.vue";
 import { router } from "./router";
 import { i18n, setLocale } from "./i18n";
 import "./styles/main.css";
+import { installGuards } from "./router/guards";
+installGuards(router);
 
 const app = createApp(App);
 app.use(createPinia());

@@ -4,6 +4,8 @@ billiard==4.3.2
 boto3==1.44.2
 botocore==1.44.2
 celery==5.7.0
+certifi==2026.10.23
+charset-normalizer==3.5.2
 click==8.5.1
 click-didyoumean==0.3.1
 click-plugins==1.1.1.2
@@ -13,6 +15,7 @@ django-filter==26.2
 django-storages==1.14.6
 djangorestframework==3.18.3
 djangorestframework_simplejwt==5.5.1
+idna==3.20
 jmespath==1.1.0
 kombu==5.7.0
 packaging==26.3
@@ -24,6 +27,7 @@ PyJWT==2.15.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.4
 redis==8.1.0
+requests==2.34.2
 s3transfer==0.19.3
 six==1.17.0
 sqlparse==0.6.1

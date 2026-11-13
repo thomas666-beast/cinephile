@@ -58,5 +58,23 @@ export const router = createRouter({
       name: "watch-episode",
       component: () => import("../views/WatchEpisodeView.vue"),
     },
+    {
+      path: "/admin",
+      component: () => import("../layouts/AdminLayout.vue"),
+      children: [
+        {
+          path: "",
+          name: "admin-home",
+          component: () => import("../views/admin/AdminHomeView.vue"),
+        },
+        // Filled in by 19C/D:
+        // { path: "movies", name: "admin-movies", ... }
+        // { path: "movies/new", name: "admin-movie-new", ... }
+        // { path: "movies/:slug", name: "admin-movie-edit", ... }
+        // { path: "series", ... }
+        // { path: "plans", ... }
+        // { path: "genres", ... }
+      ],
+    },
   ],
 });
