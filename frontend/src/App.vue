@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { RouterLink, RouterView, useRoute, useRouter } from "vue-router";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useAuthStore } from "./stores/auth";
+import { useProfileStore } from "./stores/profiles";
 
 const { t } = useI18n();
 const auth = useAuthStore();
+const profiles = useProfileStore();
 const router = useRouter();
 const route = useRoute();
 
@@ -13,6 +15,7 @@ const searchQuery = ref("");
 
 async function onSignOut() {
   await auth.logout();
+  profiles.clear();
   router.push("/");
 }
 
@@ -21,6 +24,15 @@ function onSearchSubmit() {
   router.push({ name: "search", query: { q: searchQuery.value.trim() } });
   searchQuery.value = "";
 }
+
+onMounted(async () => {
+  if (auth.user) {
+    await profiles.load();
+    if (profiles.profiles.length > 0 && !profiles.activeId) {
+      router.push({ name: "select-profile" });
+    }
+  }
+});
 
 const sections = computed(() => [
   { to: "/", label: t("nav.home"), exact: true },
@@ -56,7 +68,7 @@ function isActive(item: { to: string; exact?: boolean }): boolean {
           />
         </form>
 
-        <!-- Right: Auth -->
+        <!-- Right: Auth + Profile -->
         <nav class="flex items-center gap-6 label-caps shrink-0">
           <template v-if="!auth.user">
             <RouterLink
@@ -74,6 +86,26 @@ function isActive(item: { to: string; exact?: boolean }): boolean {
             </RouterLink>
           </template>
           <template v-else>
+            <!-- Active profile chip -->
+            <span
+              v-if="profiles.active"
+              class="text-paper-300 flex items-center gap-2 cursor-default"
+            >
+              <span class="w-5 h-5 frame flex items-center justify-center font-serif text-xs">
+                {{ profiles.active.initial }}
+              </span>
+              {{ profiles.active.name }}
+            </span>
+            <!-- Switch profile -->
+            <RouterLink
+              v-if="profiles.profiles.length > 0"
+              to="/select-profile"
+              class="text-paper-300 hover:text-paper-100 transition-colors"
+              :style="{ transitionDuration: 'var(--duration-quick)', transitionTimingFunction: 'var(--ease-hitchcock)' }"
+            >
+              {{ t("nav.switch") }}
+            </RouterLink>
+            <!-- My account -->
             <RouterLink
               to="/my-account"
               class="text-paper-300 hover:text-paper-100 transition-colors"
@@ -81,6 +113,7 @@ function isActive(item: { to: string; exact?: boolean }): boolean {
             >
               {{ t("nav.myAccount") }}
             </RouterLink>
+            <!-- Sign out -->
             <button
               type="button"
               class="text-paper-300 hover:text-paper-100 transition-colors"

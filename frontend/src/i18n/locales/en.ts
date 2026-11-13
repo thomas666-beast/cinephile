@@ -23,6 +23,7 @@ export default {
     myAccount: "My account",
     language: "Language",
     search: "Search",
+    switch: "Switch",
   },
   home: {
     heroTitle: "Stories that hold you in suspense.",
@@ -31,6 +32,15 @@ export default {
     latestSeries: "Latest series",
     emptyCatalog: "The catalog is being prepared. Check back shortly.",
     continueWatching: "Continue watching",
+  },
+  profiles: {
+    selectTitle: "Profiles",
+    whoseWatching: "Who's watching?",
+    manageProfiles: "Manage profiles",
+    sectionTitle: "Profiles",
+    newPlaceholder: "New profile name",
+    add: "Add profile",
+    kids: "Kids",
   },
   catalog: {
     releaseYear: "Release year",

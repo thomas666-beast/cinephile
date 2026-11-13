@@ -4,11 +4,16 @@ from django.utils import timezone
 from .models import Movie, Episode
 
 class WatchProgress(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="watch_history")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="watch_history"
+    )
+    profile = models.ForeignKey(
+        "accounts.Profile",
+        on_delete=models.CASCADE,
+        related_name="watch_history",
+    )
     movie = models.ForeignKey(Movie, null=True, blank=True, on_delete=models.CASCADE)
     episode = models.ForeignKey(Episode, null=True, blank=True, on_delete=models.CASCADE)
-    
-    # In seconds
     progress_seconds = models.FloatField(default=0)
     duration_seconds = models.FloatField(default=0)
     updated_at = models.DateTimeField(auto_now=True)
@@ -21,13 +26,16 @@ class WatchProgress(models.Model):
                     models.Q(movie__isnull=False, episode__isnull=True)
                     | models.Q(movie__isnull=True, episode__isnull=False)
                 ),
-                name="watch_progress_exactly_one_content"
-            )
-        ]
-        # Unique constraint so a user only has one active record per movie/episode
-        unique_together = [
-            ("user", "movie"),
-            ("user", "episode"),
+                name="watch_progress_exactly_one_content",
+            ),
+            models.UniqueConstraint(
+                fields=["profile", "movie"],
+                name="unique_profile_movie_progress",
+            ),
+            models.UniqueConstraint(
+                fields=["profile", "episode"],
+                name="unique_profile_episode_progress",
+            ),
         ]
 
     def __str__(self):

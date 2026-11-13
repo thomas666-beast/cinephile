@@ -4,15 +4,19 @@ import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useAuthStore } from "../stores/auth";
 import { useSubscriptionStore } from "../stores/subscription";
+import { useProfileStore } from "../stores/profiles";
 
 const { t } = useI18n();
 const auth = useAuthStore();
 const subs = useSubscriptionStore();
+const profiles = useProfileStore();
 const router = useRouter();
 
 const error = ref<string | null>(null);
 const canceling = ref(false);
 const showCancelConfirm = ref(false);
+const newProfileName = ref("");
+const profileError = ref<string | null>(null);
 
 onMounted(async () => {
   if (!auth.user) {
@@ -20,6 +24,7 @@ onMounted(async () => {
     return;
   }
   await subs.loadCurrent();
+  await profiles.load();
 });
 
 const formattedExpiry = computed(() => {
@@ -40,6 +45,24 @@ async function onCancel() {
     canceling.value = false;
   }
 }
+
+async function addProfile() {
+  profileError.value = null;
+  const name = newProfileName.value.trim();
+  if (!name) return;
+  try {
+    await profiles.create(name);
+    newProfileName.value = "";
+  } catch (e: any) {
+    const detail = e?.response?.data;
+    if (typeof detail === "object" && detail !== null) {
+      const first = Object.values(detail)[0];
+      profileError.value = Array.isArray(first) ? first[0] : String(first);
+    } else {
+      profileError.value = t("common.error");
+    }
+  }
+}
 </script>
 
 <template>
@@ -48,6 +71,7 @@ async function onCancel() {
     <h1 class="font-serif text-3xl md:text-4xl mb-2">{{ t("subscription.myAccountTitle") }}</h1>
     <p class="text-paper-300 mb-12">{{ t("subscription.myAccountSubtitle") }}</p>
 
+    <!-- Subscription -->
     <section>
       <h2 class="label-caps mb-4">{{ t("subscription.subscriptionSection") }}</h2>
 
@@ -106,6 +130,56 @@ async function onCancel() {
           {{ t("subscription.choosePlan") }}
         </RouterLink>
       </div>
+    </section>
+
+    <!-- Profiles -->
+    <section class="mt-12">
+      <h2 class="label-caps mb-4">{{ t("profiles.sectionTitle") }}</h2>
+
+      <ul class="frame divide-y divide-paper-300/15">
+        <li v-if="profiles.loading" class="px-5 py-6 text-center label-caps">
+          {{ t("common.loading") }}
+        </li>
+        <li v-else-if="profiles.profiles.length === 0" class="px-5 py-6 text-center label-caps">
+          {{ t("admin.noRows") }}
+        </li>
+        <li
+          v-for="p in profiles.profiles"
+          :key="p.id"
+          class="px-5 py-3 flex items-center justify-between"
+        >
+          <div class="flex items-center gap-3">
+            <span class="w-6 h-6 frame flex items-center justify-center font-serif text-xs">
+              {{ p.initial }}
+            </span>
+            <span class="font-serif text-base">{{ p.name }}</span>
+            <span v-if="p.is_kids" class="label-caps text-paper-300">· {{ t("profiles.kids") }}</span>
+          </div>
+          <button
+            type="button"
+            class="label-caps hover:text-blood-500"
+            @click="profiles.remove(p.id)"
+          >
+            {{ t("admin.delete") }}
+          </button>
+        </li>
+      </ul>
+
+      <form class="flex gap-2 mt-4" @submit.prevent="addProfile">
+        <input
+          v-model="newProfileName"
+          type="text"
+          :placeholder="t('profiles.newPlaceholder')"
+          class="flex-1 bg-transparent border border-paper-300/40 focus:border-paper-100 px-3 py-2 text-paper-100 outline-none"
+        />
+        <button
+          type="submit"
+          class="bg-blood-500 hover:bg-blood-700 text-paper-100 label-caps px-4 py-2"
+        >
+          {{ t("profiles.add") }}
+        </button>
+      </form>
+      <p v-if="profileError" class="mt-2 text-sm text-blood-500">{{ profileError }}</p>
     </section>
   </section>
 </template>

@@ -164,7 +164,15 @@ export interface WatchProgressResponse {
 }
 
 export const historyApi = {
-  save: (data: { content_type: string; content_id: number; progress_seconds: number; duration_seconds: number }) =>
-    api.post("/history/progress/", data).then(r => r.data),
-  list: () => api.get<WatchProgressResponse[]>("/history/").then(r => r.data),
+  save: (data: {
+    profile_id: number;
+    content_type: string;
+    content_id: number;
+    progress_seconds: number;
+    duration_seconds: number;
+  }) => api.post("/history/progress/", data).then(r => r.data),
+  list: (profileId: number) =>
+    api.get<WatchProgressResponse[]>("/history/", { params: { profile_id: profileId } })
+      .then(r => r.data),
 };
+

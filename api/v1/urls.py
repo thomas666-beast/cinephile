@@ -17,13 +17,13 @@ from .admin_content_views import (
 
 app_name = "api-v1"
 
-
 router = DefaultRouter()
 router.register("admin/movies", AdminMovieViewSet, basename="admin-movie")
 router.register("admin/series", AdminSeriesViewSet, basename="admin-series")
 router.register("admin/seasons", AdminSeasonViewSet, basename="admin-season")
 router.register("admin/episodes", AdminEpisodeViewSet, basename="admin-episode")
 router.register("admin/genres", AdminGenreViewSet, basename="admin-genre")
+router.register("profiles", ProfileViewSet, basename="profile")
 
 urlpatterns = [
     # Catalog

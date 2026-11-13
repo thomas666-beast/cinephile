@@ -136,3 +136,58 @@ class WatchHistoryAPIView(views.APIView):
         ).order_by("-updated_at")[:10]
         
         return Response(WatchProgressSerializer(history, many=True).data)
+
+
+from accounts.profile_models import Profile
+
+class SaveWatchProgressAPIView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        profile_id = request.data.get("profile_id")
+        if not profile_id:
+            return Response({"detail": "profile_id is required."}, status=400)
+        profile = Profile.objects.filter(id=profile_id, user=request.user).first()
+        if not profile:
+            return Response({"detail": "Profile not found."}, status=404)
+
+        content_type = request.data.get("content_type")
+        content_id = request.data.get("content_id")
+        progress_seconds = float(request.data.get("progress_seconds", 0))
+        duration_seconds = float(request.data.get("duration_seconds", 0))
+
+        if content_type == "movie":
+            movie, episode = Movie.objects.filter(pk=content_id).first(), None
+        elif content_type == "episode":
+            movie, episode = None, Episode.objects.filter(pk=content_id).first()
+        else:
+            return Response({"detail": "Invalid content type."}, status=400)
+
+        if not (movie or episode):
+            return Response({"detail": "Content not found."}, status=404)
+
+        if duration_seconds > 0 and (progress_seconds / duration_seconds) > 0.95:
+            WatchProgress.objects.filter(profile=profile, movie=movie, episode=episode).delete()
+            return Response({"status": "finished"})
+
+        WatchProgress.objects.update_or_create(
+            profile=profile, movie=movie, episode=episode,
+            defaults={"progress_seconds": progress_seconds, "duration_seconds": duration_seconds},
+        )
+        return Response({"status": "ok"})
+
+class WatchHistoryAPIView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        profile_id = request.query_params.get("profile_id")
+        if not profile_id:
+            return Response([])
+        profile = Profile.objects.filter(id=profile_id, user=request.user).first()
+        if not profile:
+            return Response([], status=404)
+
+        history = WatchProgress.objects.filter(profile=profile).select_related(
+            "movie", "episode", "episode__season", "episode__season__series"
+        ).order_by("-updated_at")[:10]
+        return Response(WatchProgressSerializer(history, many=True).data)

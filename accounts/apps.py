@@ -2,4 +2,10 @@ from django.apps import AppConfig
 
 
 class AccountsConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
     name = 'accounts'
+
+    def ready(self):
+        # Load models defined outside the default models.py
+        import accounts.profile_models  # noqa: F401
+

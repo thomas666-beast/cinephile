@@ -59,6 +59,11 @@ export const router = createRouter({
       component: () => import("../views/WatchEpisodeView.vue"),
     },
     {
+      path: "/select-profile",
+      name: "select-profile",
+      component: () => import("../views/SelectProfileView.vue"),
+    },
+    {
       path: "/admin",
       component: () => import("../layouts/AdminLayout.vue"),
       children: [
