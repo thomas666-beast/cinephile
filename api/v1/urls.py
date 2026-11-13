@@ -4,6 +4,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from . import views
 from . import auth_views
 from subscriptions import views as subscription_views
+from . import playback_views
 
 app_name = "api-v1"
 
@@ -27,4 +28,8 @@ urlpatterns = [
     path("plans/", subscription_views.PlanListAPIView.as_view(), name="plan-list"),
     path("subscriptions/", subscription_views.CreateSubscriptionAPIView.as_view(), name="subscription-create"),
     path("subscriptions/me/", subscription_views.MySubscriptionAPIView.as_view(), name="subscription-me"),
+
+    # Playback
+    path("playback/movies/<slug:slug>/", playback_views.MoviePlaybackAPIView.as_view(), name="playback-movie"),
+    path("playback/episodes/<int:pk>/", playback_views.EpisodePlaybackAPIView.as_view(), name="playback-episode"),
 ]

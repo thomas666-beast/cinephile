@@ -8,6 +8,8 @@ from .models import SubscriptionPlan, Subscription
 from .serializers import (
     SubscriptionPlanSerializer, SubscriptionSerializer, CreateSubscriptionSerializer,
 )
+from django.http import Http404
+from datetime import timedelta
 
 
 class PlanListAPIView(generics.ListAPIView):
@@ -43,7 +45,7 @@ class CreateSubscriptionAPIView(generics.GenericAPIView):
             )
 
         # Simulated payment: immediately active. Real payment integration later.
-        expires_at = timezone.now() + timezone.timedelta(days=plan.duration_days)
+        expires_at = timezone.now() + timedelta(days=plan.duration_days)
         with transaction.atomic():
             subscription = Subscription.objects.create(
                 user=request.user,
@@ -57,10 +59,12 @@ class CreateSubscriptionAPIView(generics.GenericAPIView):
             status=status.HTTP_201_CREATED,
         )
 
-
 class MySubscriptionAPIView(generics.RetrieveAPIView):
     serializer_class = SubscriptionSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
-        return get_active_subscription(self.request.user)
+        subscription = get_active_subscription(self.request.user)
+        if subscription is None:
+            raise Http404("No active subscription.")
+        return subscription

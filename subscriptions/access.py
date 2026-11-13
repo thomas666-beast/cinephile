@@ -20,16 +20,17 @@ def has_active_subscription(user) -> bool:
 
 
 def get_active_subscription(user):
-    """Return the user's active subscription, or None. Also expires stale ones."""
     if not user or not user.is_authenticated:
         return None
 
     now = timezone.now()
-    # Lazily expire any subscriptions whose time has passed
     Subscription.objects.filter(
         user=user, status=Subscription.Status.ACTIVE, expires_at__lte=now
     ).update(status=Subscription.Status.EXPIRED)
 
-    return Subscription.objects.filter(
-        user=user, status=Subscription.Status.ACTIVE, expires_at__gt=now
-    ).select_related("plan").first()
+    return (
+        Subscription.objects
+        .filter(user=user, status=Subscription.Status.ACTIVE, expires_at__gt=now)
+        .select_related("plan")
+        .first()
+    )
