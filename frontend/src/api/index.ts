@@ -46,3 +46,104 @@ export const playbackApi = {
   episode: (id: number) =>
     api.post<PlaybackResponse>(`/playback/episodes/${id}/`).then(r => r.data),
 };
+
+export interface AdminMoviePayload {
+  title: string;
+  synopsis?: string;
+  release_year?: number | null;
+  duration_minutes?: number | null;
+  genres?: number[];
+  status?: "draft" | "published";
+}
+
+export interface AdminSeriesPayload {
+  title: string;
+  synopsis?: string;
+  start_year?: number | null;
+  end_year?: number | null;
+  genres?: number[];
+  status?: "draft" | "published";
+}
+
+export const adminApi = {
+  stats: () => api.get("/admin/stats/").then(r => r.data),
+
+  // Movies
+  listMovies: (params?: { search?: string; status?: string; page?: number }) =>
+    api.get("/admin/movies/", { params }).then(r => r.data),
+  getMovie: (slug: string) => api.get(`/admin/movies/${slug}/`).then(r => r.data),
+  createMovie: (body: AdminMoviePayload) =>
+    api.post("/admin/movies/", body).then(r => r.data),
+  updateMovie: (slug: string, body: Partial<AdminMoviePayload>) =>
+    api.patch(`/admin/movies/${slug}/`, body).then(r => r.data),
+  deleteMovie: (slug: string) => api.delete(`/admin/movies/${slug}/`).then(r => r.data),
+  publishMovie: (slug: string) => api.post(`/admin/movies/${slug}/publish/`).then(r => r.data),
+  unpublishMovie: (slug: string) => api.post(`/admin/movies/${slug}/unpublish/`).then(r => r.data),
+  uploadMoviePoster: (slug: string, file: File) => {
+    const fd = new FormData();
+    fd.append("poster", file);
+    return api.patch(`/admin/movies/${slug}/`, fd, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }).then(r => r.data);
+  },
+  uploadMovieBackdrop: (slug: string, file: File) => {
+    const fd = new FormData();
+    fd.append("backdrop", file);
+    return api.patch(`/admin/movies/${slug}/`, fd, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }).then(r => r.data);
+  },
+
+  // Series
+  listSeries: (params?: { search?: string; status?: string; page?: number }) =>
+    api.get("/admin/series/", { params }).then(r => r.data),
+  getSeries: (slug: string) => api.get(`/admin/series/${slug}/`).then(r => r.data),
+  createSeries: (body: AdminSeriesPayload) =>
+    api.post("/admin/series/", body).then(r => r.data),
+  updateSeries: (slug: string, body: Partial<AdminSeriesPayload>) =>
+    api.patch(`/admin/series/${slug}/`, body).then(r => r.data),
+  deleteSeries: (slug: string) => api.delete(`/admin/series/${slug}/`).then(r => r.data),
+  publishSeries: (slug: string) => api.post(`/admin/series/${slug}/publish/`).then(r => r.data),
+  unpublishSeries: (slug: string) => api.post(`/admin/series/${slug}/unpublish/`).then(r => r.data),
+
+  // Seasons & episodes
+  listSeasons: (seriesSlug: string) =>
+    api.get("/admin/seasons/", { params: { series__slug: seriesSlug } }).then(r => r.data),
+  createSeason: (body: { series: string; number: number; title?: string; synopsis?: string }) =>
+    api.post("/admin/seasons/", body).then(r => r.data),
+  updateSeason: (id: number, body: Partial<{ number: number; title: string; synopsis: string }>) =>
+    api.patch(`/admin/seasons/${id}/`, body).then(r => r.data),
+  deleteSeason: (id: number) => api.delete(`/admin/seasons/${id}/`).then(r => r.data),
+  createEpisode: (body: {
+    season: number; number: number; title: string;
+    synopsis?: string; duration_minutes?: number | null; air_date?: string | null;
+    status?: "draft" | "published";
+  }) => api.post("/admin/episodes/", body).then(r => r.data),
+  updateEpisode: (id: number, body: Partial<{ number: number; title: string; status: string }>) =>
+    api.patch(`/admin/episodes/${id}/`, body).then(r => r.data),
+  deleteEpisode: (id: number) => api.delete(`/admin/episodes/${id}/`).then(r => r.data),
+
+  // Genres
+  listGenres: () => api.get("/admin/genres/").then(r => r.data),
+  createGenre: (body: { name: string }) => api.post("/admin/genres/", body).then(r => r.data),
+  deleteGenre: (id: number) => api.delete(`/admin/genres/${id}/`).then(r => r.data),
+
+  // Video upload + status
+  uploadVideo: (
+    movieId: number,
+    file: File,
+    mimeType: string,
+    onProgress: (pct: number) => void,
+  ) => {
+    const fd = new FormData();
+    fd.append("movie", String(movieId));
+    fd.append("video_file", file);
+    fd.append("mime_type", mimeType);
+    return api.post("/admin/videos/", fd, {
+      headers: { "Content-Type": "multipart/form-data" },
+      onUploadProgress: (e) => {
+        if (e.total) onProgress(Math.round((e.loaded / e.total) * 100));
+      },
+    }).then(r => r.data);
+  },
+};

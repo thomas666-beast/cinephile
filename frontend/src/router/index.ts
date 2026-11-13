@@ -62,18 +62,13 @@ export const router = createRouter({
       path: "/admin",
       component: () => import("../layouts/AdminLayout.vue"),
       children: [
-        {
-          path: "",
-          name: "admin-home",
-          component: () => import("../views/admin/AdminHomeView.vue"),
-        },
-        // Filled in by 19C/D:
-        // { path: "movies", name: "admin-movies", ... }
-        // { path: "movies/new", name: "admin-movie-new", ... }
-        // { path: "movies/:slug", name: "admin-movie-edit", ... }
-        // { path: "series", ... }
-        // { path: "plans", ... }
-        // { path: "genres", ... }
+        { path: "movies", name: "admin-movies", component: () => import("../views/admin/AdminMoviesView.vue") },
+        { path: "movies/new", name: "admin-movie-new", component: () => import("../views/admin/AdminMovieEditView.vue") },
+        { path: "movies/:slug", name: "admin-movie-edit", component: () => import("../views/admin/AdminMovieEditView.vue") },
+        { path: "series", name: "admin-series", component: () => import("../views/admin/AdminSeriesView.vue") },
+        { path: "series/new", name: "admin-series-new", component: () => import("../views/admin/AdminSeriesEditView.vue") },
+        { path: "series/:slug", name: "admin-series-edit", component: () => import("../views/admin/AdminSeriesEditView.vue") },
+        { path: "genres", name: "admin-genres", component: () => import("../views/admin/AdminGenresView.vue") },
       ],
     },
   ],
