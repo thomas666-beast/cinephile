@@ -56,6 +56,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     date_joined = models.DateTimeField(default=timezone.now)
 
+    reset_token = models.CharField(max_length=64, blank=True, default="")
+    reset_token_created = models.DateTimeField(null=True, blank=True)
+
     objects = UserManager()
 
     USERNAME_FIELD = "email"

@@ -216,7 +216,12 @@ CELERY_TASK_DEFAULT_QUEUE = "default"
 # --- Email ---
 MAILERS = {
     "default": {
-        "BACKEND": "django.core.mail.backends.console.EmailBackend",
+        "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
+        "OPTIONS": {
+            "host": "localhost",
+            "port": 1025,
+            "use_tls": False,
+        },
     },
 }
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "Cinephile <noreply@cinephile.local>")
