@@ -242,7 +242,7 @@ class VideoAsset(TimeStampedModel):
                 self.status = self.Status.UPLOADED
         super().save(*args, **kwargs)
 
-        def hls_root(self):
+    def hls_root(self):
         """Directory (relative to MEDIA_ROOT) where this asset's HLS output lives."""
         return hls_output_dir(self)
 

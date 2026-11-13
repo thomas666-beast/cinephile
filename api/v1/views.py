@@ -2,7 +2,7 @@ from django.db.models import Prefetch
 from rest_framework import generics, views
 from rest_framework.response import Response
 
-from catalog.models import Genre, Movie, Series, Season, PublishStatus
+from catalog.models import Genre, Movie, Series, Season, Episode, PublishStatus
 from .serializers import (
     GenreSerializer, MovieListSerializer, MovieDetailSerializer,
     SeriesListSerializer, SeriesDetailSerializer,
