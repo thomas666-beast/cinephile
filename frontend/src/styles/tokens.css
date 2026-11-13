@@ -1,0 +1,43 @@
+/* ============================================================
+   Hitchcock design tokens
+   Consumed everywhere via var(--token-name).
+   Never hard-code a color or font in a component.
+   ============================================================ */
+
+@theme {
+  /* ----- Color ----- */
+  --color-noir-950: #06070A;   /* deepest, page background */
+  --color-noir-900: #0B0C0E;   /* primary surface */
+  --color-noir-800: #14161B;   /* elevated surface */
+  --color-noir-700: #1C1E22;   /* hairline contrast */
+  --color-noir-500: #4A4E57;   /* muted text on dark */
+  --color-paper-100: #F1EDE4;  /* primary text on dark, paper background */
+  --color-paper-300: #D4C9B0;  /* hairline, secondary text */
+  --color-blood-500: #C1272D;  /* the single accent — an event, not a theme */
+  --color-blood-700: #8E1C21;  /* hover/pressed accent */
+
+  /* ----- Typography ----- */
+  --font-serif: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* ----- Spacing scale (8px base) ----- */
+  --spacing-1: 0.5rem;
+  --spacing-2: 1rem;
+  --spacing-3: 1.5rem;
+  --spacing-4: 2rem;
+  --spacing-6: 3rem;
+  --spacing-8: 4rem;
+  --spacing-12: 6rem;
+
+  /* ----- Motion ----- */
+  --ease-hitchcock: cubic-bezier(0.22, 1, 0.36, 1);  /* slow, deliberate */
+  --duration-quick: 250ms;
+  --duration-standard: 400ms;
+
+  /* ----- Radius ----- */
+  /* Hitchcock frames are rectangles. Radius is 0 by default. */
+  --radius-none: 0;
+
+  /* ----- Focus ring ----- */
+  --focus-ring: 0 0 0 2px var(--color-blood-500);
+}
