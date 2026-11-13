@@ -93,6 +93,7 @@ export default {
     creatingAccount: "Creating account…",
     signInLinkPrompt: "Already have an account?",
     registerLinkPrompt: "No account yet?",
+    forgotPassword: "Forgot password?",
   },
   subscription: {
     plansTitle: "Choose your plan",
@@ -213,5 +214,19 @@ export default {
     filterSeries: "Series",
     moviesCount: "{n} movie(s)",
     seriesCount: "{n} series",
+  },
+  passwordReset: {
+    requestTitle: "Reset your password",
+    requestSubtitle: "Enter your email and we'll send you a link.",
+    requestCta: "Send reset link",
+    requestSuccess: "If an account exists with this email, reset instructions have been sent.",
+    confirmTitle: "Choose a new password",
+    confirmSubtitle: "Enter and confirm your new password.",
+    confirmCta: "Update password",
+    confirmSuccess: "Password updated. You can now sign in.",
+    invalidLink: "This reset link is invalid or has expired.",
+    forgotLink: "Forgot password?",
+    newPassword: "New password",
+    confirmPassword: "Confirm new password",
   },
 };

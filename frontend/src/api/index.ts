@@ -176,3 +176,9 @@ export const historyApi = {
       .then(r => r.data),
 };
 
+export const passwordApi = {
+  requestReset: (email: string) =>
+    api.post("/auth/password-reset/", { email }).then(r => r.data),
+  confirmReset: (data: { uid: string; token: string; new_password: string; confirm_password: string }) =>
+    api.post("/auth/password-reset/confirm/", data).then(r => r.data),
+};

@@ -64,6 +64,16 @@ export const router = createRouter({
       component: () => import("../views/SelectProfileView.vue"),
     },
     {
+      path: "/forgot-password",
+      name: "forgot-password",
+      component: () => import("../views/PasswordResetRequestView.vue"),
+    },
+    {
+      path: "/reset-password",
+      name: "reset-password",
+      component: () => import("../views/PasswordResetConfirmView.vue"),
+    },
+    {
       path: "/admin",
       component: () => import("../layouts/AdminLayout.vue"),
       children: [

@@ -212,3 +212,11 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TIMEZONE = "UTC"
 CELERY_TASK_TRACK_STARTED = True               # expose "started" state
 CELERY_TASK_DEFAULT_QUEUE = "default"
+
+# --- Email ---
+EMAIL_BACKEND = os.getenv(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.console.EmailBackend",  # dev default: prints to console
+)
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "Cinephile <noreply@cinephile.local>")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")

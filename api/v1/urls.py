@@ -1,19 +1,20 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-
 from . import views
 from . import auth_views
 from subscriptions import views as subscription_views
 from . import admin_views
 from . import playback_views, stream_views
-
 from . import search_views
-
 from rest_framework.routers import DefaultRouter
 from .admin_content_views import (
     AdminGenreViewSet, AdminMovieViewSet, AdminSeriesViewSet,
     AdminSeasonViewSet, AdminEpisodeViewSet, AdminStatsAPIView,
 )
+from .password_reset_views import (
+    PasswordResetRequestAPIView, PasswordResetConfirmAPIView,
+)
+from .profile_views import ProfileViewSet
 
 app_name = "api-v1"
 
@@ -84,4 +85,8 @@ urlpatterns = [
 
     path("history/progress/", views.SaveWatchProgressAPIView.as_view(), name="history-save"),
     path("history/", views.WatchHistoryAPIView.as_view(), name="history-list"),
+     
+     # Email
+     path("auth/password-reset/", PasswordResetRequestAPIView.as_view(), name="password-reset-request"),
+    path("auth/password-reset/confirm/", PasswordResetConfirmAPIView.as_view(), name="password-reset-confirm"),
 ] + router.urls

@@ -74,6 +74,14 @@ async function onSubmit() {
           :class="{ 'border-blood-500': errors.password }"
         />
         <p v-if="errors.password" class="mt-2 text-sm text-blood-500">{{ errors.password }}</p>
+        <p class="text-right">
+          <RouterLink
+            to="/forgot-password"
+            class="label-caps text-paper-300 hover:text-paper-100"
+          >
+            {{ t("passwordReset.forgotLink") }}
+          </RouterLink>
+        </p>
       </div>
 
       <p v-if="serverError" class="text-sm text-blood-500">{{ serverError }}</p>
