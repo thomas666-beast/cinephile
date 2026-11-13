@@ -7,7 +7,21 @@ from subscriptions import views as subscription_views
 from . import admin_views
 from . import playback_views, stream_views
 
+from rest_framework.routers import DefaultRouter
+from .admin_content_views import (
+    AdminGenreViewSet, AdminMovieViewSet, AdminSeriesViewSet,
+    AdminSeasonViewSet, AdminEpisodeViewSet, AdminStatsAPIView,
+)
+
 app_name = "api-v1"
+
+
+router = DefaultRouter()
+router.register("admin/movies", AdminMovieViewSet, basename="admin-movie")
+router.register("admin/series", AdminSeriesViewSet, basename="admin-series")
+router.register("admin/seasons", AdminSeasonViewSet, basename="admin-season")
+router.register("admin/episodes", AdminEpisodeViewSet, basename="admin-episode")
+router.register("admin/genres", AdminGenreViewSet, basename="admin-genre")
 
 urlpatterns = [
     # Catalog
@@ -56,4 +70,10 @@ urlpatterns = [
          stream_views.EpisodeStreamView.as_view(), name="playback-stream-episode-master"),
     path("playback/stream/episodes/<int:ident>/<str:rendition>/<str:file>",
          stream_views.EpisodeStreamView.as_view(), name="playback-stream-episode-file"),
-]
+
+    # Admin dashboard
+    path("admin/stats/", AdminStatsAPIView.as_view(), name="admin-stats"),
+    # Admin videos
+    path("admin/videos/", admin_views.VideoUploadAPIView.as_view(), name="admin-video-upload"),
+    path("admin/videos/<int:pk>/complete/", admin_views.CompleteVideoUploadAPIView.as_view(), name="admin-video-complete"),
+] + router.urls
