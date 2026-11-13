@@ -29,11 +29,11 @@ urlpatterns = [
     path("plans/", subscription_views.PlanListAPIView.as_view(), name="plan-list"),
     path("subscriptions/", subscription_views.CreateSubscriptionAPIView.as_view(), name="subscription-create"),
     path("subscriptions/me/", subscription_views.MySubscriptionAPIView.as_view(), name="subscription-me"),
-     path(
-          "subscriptions/<int:pk>/cancel/",
-          subscription_views.CancelSubscriptionAPIView.as_view(),
-          name="subscription-cancel",
-     ),
+    path(
+     "subscriptions/<int:pk>/cancel/",
+     subscription_views.CancelSubscriptionAPIView.as_view(),
+     name="subscription-cancel",
+    ),
 
     # Playback
     path("playback/movies/<slug:slug>/", playback_views.MoviePlaybackAPIView.as_view(), name="playback-movie"),

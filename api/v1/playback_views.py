@@ -20,10 +20,22 @@ def _latest_ready_asset(movie=None, episode=None) -> VideoAsset | None:
     return qs.order_by("-created_at").first()
 
 
-def _build_playback_payload(*, request, token, content_type, content_id, asset):
+def _build_playback_payload(
+    *,
+    request,
+    token,
+    content_type,
+    content_id,
+    content_ident,
+    asset,
+):
     """
     Build the response body. If the asset isn't ready yet, return manifest URL=None
     so the frontend can render a 'still processing' state instead of an error.
+
+    `content_ident` is what the stream route expects:
+      - movie: the slug (str)
+      - episode: the pk (int)
     """
     manifest_url = None
     renditions = []
@@ -35,7 +47,7 @@ def _build_playback_payload(*, request, token, content_type, content_id, asset):
             if content_type == "movie"
             else "v1:playback-stream-episode-master"
         )
-        path = reverse(stream_route, kwargs={"ident": content_id})
+        path = reverse(stream_route, kwargs={"ident": content_ident})
         manifest_url = f"{path}?{urlencode({'token': token})}"
         renditions = asset.available_renditions()
 
@@ -58,8 +70,6 @@ class MoviePlaybackAPIView(views.APIView):
         movie = get_object_or_404(Movie, slug=slug, status=PublishStatus.PUBLISHED)
         asset = _latest_ready_asset(movie=movie)
         if asset is None:
-            # Movie exists but no ready asset yet — return 409 so the frontend
-            # can show "Processing" rather than pretending it exists.
             return Response(
                 {"detail": "This movie is not yet available for streaming."},
                 status=status.HTTP_409_CONFLICT,
@@ -68,8 +78,12 @@ class MoviePlaybackAPIView(views.APIView):
             user=request.user, content_type="movie", content_id=movie.id,
         )
         payload = _build_playback_payload(
-            request=request, token=token,
-            content_type="movie", content_id=movie.id, asset=asset,
+            request=request,
+            token=token,
+            content_type="movie",
+            content_id=movie.id,
+            content_ident=movie.slug,
+            asset=asset,
         )
         return Response(payload, status=status.HTTP_200_OK)
 
@@ -79,7 +93,8 @@ class EpisodePlaybackAPIView(views.APIView):
 
     def post(self, request, pk):
         episode = get_object_or_404(
-            Episode, pk=pk,
+            Episode,
+            pk=pk,
             status=PublishStatus.PUBLISHED,
             season__series__status=PublishStatus.PUBLISHED,
         )
@@ -93,7 +108,11 @@ class EpisodePlaybackAPIView(views.APIView):
             user=request.user, content_type="episode", content_id=episode.id,
         )
         payload = _build_playback_payload(
-            request=request, token=token,
-            content_type="episode", content_id=episode.id, asset=asset,
+            request=request,
+            token=token,
+            content_type="episode",
+            content_id=episode.id,
+            content_ident=episode.id,
+            asset=asset,
         )
         return Response(payload, status=status.HTTP_200_OK)

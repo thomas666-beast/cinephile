@@ -1,9 +1,9 @@
 import re
 from pathlib import Path
+from urllib.parse import urlencode
 
 import jwt
-from django.conf import settings
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
 from rest_framework.views import APIView
@@ -24,7 +24,6 @@ MIME_BY_EXT = {
 
 
 def _extract_token(request) -> str | None:
-    """Token comes from query string (player) or Authorization header (curl/debug)."""
     if "token" in request.query_params:
         return request.query_params["token"]
     auth = request.headers.get("Authorization", "")
@@ -34,10 +33,6 @@ def _extract_token(request) -> str | None:
 
 
 def _resolve_asset(content_type: str, ident: str | int) -> tuple[VideoAsset, int]:
-    """
-    Resolve (asset, content_id) for a given content type and identifier.
-    `ident` is a slug for movies, pk for episodes.
-    """
     if content_type == "movie":
         movie = get_object_or_404(Movie, slug=ident, status=PublishStatus.PUBLISHED)
         asset = (
@@ -67,7 +62,6 @@ def _resolve_asset(content_type: str, ident: str | int) -> tuple[VideoAsset, int
 
 
 def _validate_and_check_token(request, *, content_type: str, content_id: int) -> Response | None:
-    """Return an error Response if the token is bad; None if it's valid."""
     token = _extract_token(request)
     if not token:
         return Response(
@@ -93,15 +87,11 @@ def _validate_and_check_token(request, *, content_type: str, content_id: int) ->
     return None
 
 
-def _serve_file(asset: VideoAsset, rel_parts: list[str]) -> FileResponse:
-    """
-    Validate the relative parts against whitelist, resolve to disk, and serve.
-    The path is assembled only from values already validated by the callers.
-    """
+def _resolve_path(asset: VideoAsset, rel_parts: list[str]) -> Path:
+    """Validate the path is inside the asset's HLS dir and exists."""
     hls_root = asset.hls_dir_abs()
     target = hls_root.joinpath(*rel_parts).resolve()
 
-    # Path traversal guard: target must live *inside* hls_root.
     try:
         target.relative_to(hls_root.resolve())
     except ValueError:
@@ -110,20 +100,46 @@ def _serve_file(asset: VideoAsset, rel_parts: list[str]) -> FileResponse:
     if not target.is_file():
         raise Http404("Not found.")
 
-    ext = target.suffix.lower()
-    if ext not in MIME_BY_EXT:
-        raise Http404("Unsupported file type.")
+    return target
 
-    return FileResponse(
-        open(target, "rb"),
-        content_type=MIME_BY_EXT[ext],
+
+def _rewrite_playlist(original: str, token: str) -> str:
+    """
+    Rewrite a manifest so that every URL a player will fetch from it carries
+    the token. Comments (#...) pass through. Non-empty non-comment lines get
+    `?token=...` appended (or `&token=...` if the URL already has a query).
+    """
+    out_lines = []
+    for line in original.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            out_lines.append(line)
+            continue
+        # Append token, preserving any existing query string
+        sep = "&" if "?" in stripped else "?"
+        out_lines.append(f"{stripped}{sep}{urlencode({'token': token})}")
+    return "\n".join(out_lines) + "\n"
+
+
+def _serve_playlist(asset: VideoAsset, rel_parts: list[str], token: str) -> HttpResponse:
+    target = _resolve_path(asset, rel_parts)
+    content = target.read_text(encoding="utf-8")
+    rewritten = _rewrite_playlist(content, token)
+    return HttpResponse(
+        rewritten,
+        content_type=MIME_BY_EXT[".m3u8"],
     )
 
 
+def _serve_binary(asset: VideoAsset, rel_parts: list[str]) -> FileResponse:
+    target = _resolve_path(asset, rel_parts)
+    ext = target.suffix.lower()
+    if ext not in MIME_BY_EXT:
+        raise Http404("Unsupported file type.")
+    return FileResponse(open(target, "rb"), content_type=MIME_BY_EXT[ext])
+
+
 class _BaseStreamView(APIView):
-    # We're intentionally bypassing DRF's IsSubscriber — the playback token itself
-    # proves subscription was checked at /playback/, and we want segment requests
-    # to be cheap (no user lookup, no DB join).
     permission_classes = [permissions.AllowAny]
     content_type: str = ""
 
@@ -136,9 +152,11 @@ class _BaseStreamView(APIView):
         if err is not None:
             return err
 
+        token = _extract_token(request)  # known non-None at this point
+
         if rendition is None:
-            # /master.m3u8
-            return _serve_file(asset, ["master.m3u8"])
+            # master manifest — rewrite variant URLs with token
+            return _serve_playlist(asset, ["master.m3u8"], token)
 
         if not RENDITION_RE.match(rendition):
             return Response(
@@ -150,7 +168,13 @@ class _BaseStreamView(APIView):
                 {"detail": "Invalid file name."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        return _serve_file(asset, [rendition, file])
+
+        if (file or "").endswith(".m3u8"):
+            # variant manifest — rewrite segment URLs with token
+            return _serve_playlist(asset, [rendition, file], token)
+        else:
+            # segment / binary — serve as-is
+            return _serve_binary(asset, [rendition, file])
 
 
 class MovieStreamView(_BaseStreamView):

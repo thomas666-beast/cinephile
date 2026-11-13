@@ -48,5 +48,15 @@ export const router = createRouter({
       name: "my-account",
       component: () => import("../views/MyAccountView.vue"),
     },
+    {
+      path: "/watch/movie/:slug",
+      name: "watch-movie",
+      component: () => import("../views/WatchMovieView.vue"),
+    },
+    {
+      path: "/watch/episode/:id",
+      name: "watch-episode",
+      component: () => import("../views/WatchEpisodeView.vue"),
+    },
   ],
 });

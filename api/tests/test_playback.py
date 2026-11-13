@@ -88,7 +88,8 @@ class PlaybackTokenBindingTests(MediaRootTestCase):
         stream_url = reverse("v1:playback-stream-movie-master", args=[m.slug])
         resp = self.client.get(stream_url, {"token": token})
         self.assertEqual(resp.status_code, 200)
-        self.assertIn(b"#EXTM3U", b"".join(resp.streaming_content))
+        body = resp.content.decode()
+        self.assertIn("#EXTM3U", body)
 
 
 class StreamSecurityTests(MediaRootTestCase):
@@ -121,3 +122,72 @@ class StreamSecurityTests(MediaRootTestCase):
         resp = self.client.get(bad, {"token": self.token})
         # Django may return 400 (bad request, route didn't match) or 404. Either is fine.
         self.assertIn(resp.status_code, (400, 404))
+
+
+class PlaylistRewriteTests(MediaRootTestCase):
+    def test_master_manifest_embeds_token_in_variant_urls(self):
+        user = make_user()
+        make_subscription(user=user, plan=make_plan())
+        movie = make_movie(title="Rewrite Test")
+        asset = make_video_asset(movie=movie)
+        make_hls_files(asset)
+
+        self.client.force_authenticate(user)
+        resp = self.client.post(reverse("v1:playback-movie", args=[movie.slug]))
+        token = resp.data["token"]
+
+        stream_url = reverse("v1:playback-stream-movie-master", args=[movie.slug])
+        resp = self.client.get(stream_url, {"token": token})
+        body = resp.content.decode()
+
+        for line in body.splitlines():
+            line = line.strip()
+            if line and not line.startswith("#"):
+                self.assertIn(f"token={token}", line,
+                            f"Manifest URL missing token: {line!r}")
+
+    def test_variant_manifest_embeds_token_in_segment_urls(self):
+        user = make_user()
+        make_subscription(user=user, plan=make_plan())
+        movie = make_movie(title="Variant Rewrite")
+        asset = make_video_asset(movie=movie)
+        make_hls_files(asset)
+
+        self.client.force_authenticate(user)
+        resp = self.client.post(reverse("v1:playback-movie", args=[movie.slug]))
+        token = resp.data["token"]
+
+        variant_url = reverse(
+            "v1:playback-stream-movie-file",
+            args=[movie.slug, "360p", "index.m3u8"],
+        )
+        resp = self.client.get(variant_url, {"token": token})
+        body = resp.content.decode()
+
+        for line in body.splitlines():
+            line = line.strip()
+            if line and not line.startswith("#"):
+                self.assertIn(f"token={token}", line,
+                            f"Variant URL missing token: {line!r}")
+
+    def test_segment_serves_binary(self):
+        user = make_user()
+        make_subscription(user=user, plan=make_plan())
+        movie = make_movie(title="Segment Test")
+        asset = make_video_asset(movie=movie)
+        make_hls_files(asset)
+
+        self.client.force_authenticate(user)
+        resp = self.client.post(reverse("v1:playback-movie", args=[movie.slug]))
+        token = resp.data["token"]
+
+        seg_url = reverse(
+            "v1:playback-stream-movie-file",
+            args=[movie.slug, "360p", "seg_000.ts"],
+        )
+        resp = self.client.get(seg_url, {"token": token})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Content-Type"], "video/mp2t")
+        # FileResponse is streaming — this attribute exists on it
+        data = b"".join(resp.streaming_content)
+        self.assertGreater(len(data), 0)
