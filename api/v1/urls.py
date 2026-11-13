@@ -4,8 +4,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from . import views
 from . import auth_views
 from subscriptions import views as subscription_views
-from . import playback_views
 from . import admin_views
+from . import playback_views, stream_views
 
 app_name = "api-v1"
 
@@ -37,4 +37,18 @@ urlpatterns = [
     # Video
     path("admin/videos/", admin_views.VideoUploadAPIView.as_view(), name="admin-video-upload"),
     path("admin/videos/<int:pk>/complete/", admin_views.CompleteVideoUploadAPIView.as_view(), name="admin-video-complete"),
+
+    # Playback (issue token + manifest URL)
+    path("playback/movies/<slug:slug>/", playback_views.MoviePlaybackAPIView.as_view(), name="playback-movie"),
+    path("playback/episodes/<int:pk>/", playback_views.EpisodePlaybackAPIView.as_view(), name="playback-episode"),
+
+    # Stream (served to the player, token-gated)
+    path("playback/stream/movies/<slug:ident>/master.m3u8",
+         stream_views.MovieStreamView.as_view(), name="playback-stream-movie-master"),
+    path("playback/stream/movies/<slug:ident>/<str:rendition>/<str:file>",
+         stream_views.MovieStreamView.as_view(), name="playback-stream-movie-file"),
+    path("playback/stream/episodes/<int:ident>/master.m3u8",
+         stream_views.EpisodeStreamView.as_view(), name="playback-stream-episode-master"),
+    path("playback/stream/episodes/<int:ident>/<str:rendition>/<str:file>",
+         stream_views.EpisodeStreamView.as_view(), name="playback-stream-episode-file"),
 ]

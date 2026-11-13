@@ -241,3 +241,28 @@ class VideoAsset(TimeStampedModel):
             if self.status == self.Status.PENDING:
                 self.status = self.Status.UPLOADED
         super().save(*args, **kwargs)
+
+        def hls_root(self):
+        """Directory (relative to MEDIA_ROOT) where this asset's HLS output lives."""
+        return hls_output_dir(self)
+
+    def hls_dir_abs(self):
+        """Absolute filesystem path to the asset's HLS output directory."""
+        from pathlib import Path
+        from django.conf import settings
+        return Path(settings.MEDIA_ROOT) / self.hls_root()
+
+    def available_renditions(self) -> list[str]:
+        """Subdirectory names containing a valid index.m3u8, ordered smallest→largest."""
+        root = self.hls_dir_abs()
+        if not root.exists():
+            return []
+        renditions = []
+        for child in root.iterdir():
+            if child.is_dir() and (child / "index.m3u8").exists():
+                renditions.append(child.name)
+        # Sort by numeric prefix if present (360p < 720p < 1080p)
+        def _num(name: str) -> int:
+            digits = "".join(c for c in name if c.isdigit())
+            return int(digits) if digits else 0
+        return sorted(renditions, key=_num)
