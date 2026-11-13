@@ -12,9 +12,7 @@ const props = defineProps<{
   currentError: string | null;
 }>();
 
-const emit = defineEmits<{
-  (e: "updated"): void;
-}>();
+const emit = defineEmits<{ (e: "updated"): void }>();
 
 const { t } = useI18n();
 const status = ref<Status>("idle");
@@ -22,10 +20,7 @@ const progress = ref(0);
 const errorMessage = ref<string | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
 
-// Poll timer
 let pollTimer: ReturnType<typeof setInterval> | null = null;
-
-// Track the asset ID we're polling
 const trackedAssetId = ref<number | null>(null);
 
 function stopPolling() {
@@ -39,7 +34,6 @@ function startPolling() {
   pollTimer = setInterval(async () => {
     try {
       const data = await adminApi.getMovie(props.movieId.toString());
-      // Find this asset's status via movie's video_status (we added that to serializer)
       if (data.video_status && data.video_status.id === trackedAssetId.value) {
         if (data.video_status.status === "ready") {
           status.value = "ready";
@@ -55,12 +49,11 @@ function startPolling() {
         }
       }
     } catch {
-      // Ignore transient errors — keep polling
+      // ignore
     }
   }, 3000);
 }
 
-// Sync with prop state
 watch(
   () => props.currentStatus,
   (next) => {
@@ -72,9 +65,7 @@ watch(
   { immediate: true },
 );
 
-function pickFile() {
-  fileInput.value?.click();
-}
+function pickFile() { fileInput.value?.click(); }
 
 async function onFileSelected(e: Event) {
   const input = e.target as HTMLInputElement;
@@ -116,20 +107,17 @@ onBeforeUnmount(stopPolling);
 </script>
 
 <template>
-  <div class="frame p-6">
+  <div class="frame p-5">
     <p class="label-caps mb-2">Video</p>
-    <p class="font-serif text-lg mb-6">{{ statusLabel }}</p>
+    <p class="font-serif text-base mb-4">{{ statusLabel }}</p>
 
-    <div v-if="status === 'uploading'" class="mb-4">
+    <div v-if="status === 'uploading'" class="mb-3">
       <div class="w-full h-px bg-paper-300/30 relative">
-        <div
-          class="absolute left-0 top-0 h-full bg-blood-500"
-          :style="{ width: progress + '%' }"
-        />
+        <div class="absolute left-0 top-0 h-full bg-blood-500" :style="{ width: progress + '%' }" />
       </div>
     </div>
 
-    <p v-if="status === 'failed' && errorMessage" class="text-sm text-blood-500 mb-4 break-words">
+    <p v-if="status === 'failed' && errorMessage" class="text-xs text-blood-500 mb-3 break-words">
       {{ errorMessage }}
     </p>
 
@@ -140,12 +128,6 @@ onBeforeUnmount(stopPolling);
       {{ status === 'ready' ? "Replace video" : "Upload video" }}
     </AdminPrimaryButton>
 
-    <input
-      ref="fileInput"
-      type="file"
-      accept="video/*"
-      class="hidden"
-      @change="onFileSelected"
-    />
+    <input ref="fileInput" type="file" accept="video/*" class="hidden" @change="onFileSelected" />
   </div>
 </template>

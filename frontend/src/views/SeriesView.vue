@@ -69,7 +69,7 @@ function formatYears(s: SeriesListItem): string | null {
 
       <ul
         v-else
-        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5"
       >
         <li v-for="s in items" :key="s.id">
           <PosterTile
@@ -83,7 +83,7 @@ function formatYears(s: SeriesListItem): string | null {
 
       <nav
         v-if="totalPages > 1"
-        class="mt-12 flex items-center justify-between label-caps"
+        class="mt-10 flex items-center justify-between label-caps"
       >
         <button
           type="button"

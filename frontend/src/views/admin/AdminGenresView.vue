@@ -37,12 +37,12 @@ onMounted(load);
   <div>
     <AdminPageHeader :label="t('admin.navSection')" :title="t('admin.listGenresTitle')">
       <template #actions>
-        <form class="flex gap-3 items-end" @submit.prevent="create">
+        <form class="flex gap-2 items-end" @submit.prevent="create">
           <input
             v-model="newName"
             type="text"
             placeholder="New genre"
-            class="bg-transparent border border-paper-300/40 focus:border-paper-100 px-4 py-2 text-paper-100 outline-none"
+            class="bg-transparent border border-paper-300/40 focus:border-paper-100 px-3 py-2 text-paper-100 outline-none text-sm"
           />
           <AdminPrimaryButton type="submit">Add</AdminPrimaryButton>
         </form>
@@ -51,14 +51,14 @@ onMounted(load);
 
     <div class="frame">
       <ul class="divide-y divide-paper-300/15">
-        <li v-if="loading" class="px-5 py-8 text-center label-caps">{{ t("common.loading") }}</li>
-        <li v-else-if="genres.length === 0" class="px-5 py-8 text-center label-caps">{{ t("admin.noRows") }}</li>
+        <li v-if="loading" class="px-4 py-6 text-center label-caps">{{ t("common.loading") }}</li>
+        <li v-else-if="genres.length === 0" class="px-4 py-6 text-center label-caps">{{ t("admin.noRows") }}</li>
         <li
           v-for="g in genres"
           :key="g.id"
-          class="px-5 py-4 flex items-center justify-between"
+          class="px-4 py-3 flex items-center justify-between"
         >
-          <span class="font-serif text-lg">{{ g.name }}</span>
+          <span class="font-serif text-base">{{ g.name }}</span>
           <button type="button" class="label-caps hover:text-blood-500" @click="remove(g.id)">
             {{ t("admin.delete") }}
           </button>

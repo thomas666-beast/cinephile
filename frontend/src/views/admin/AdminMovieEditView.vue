@@ -31,6 +31,7 @@ interface MovieData {
   status: "draft" | "published";
   video_status: { id: number; status: string; processing_error: string | null } | null;
 }
+
 const movie = ref<MovieData | null>(null);
 const genres = ref<Genre[]>([]);
 const loading = ref(true);
@@ -150,34 +151,33 @@ watch(() => route.fullPath, load);
 
     <p v-if="loading" class="label-caps py-16 text-center">{{ t("common.loading") }}</p>
 
-    <form v-else class="grid lg:grid-cols-[1fr_360px] gap-10" @submit.prevent="onSave">
-      <!-- Main column -->
-      <div class="space-y-6">
+    <form v-else class="grid lg:grid-cols-[1fr_320px] gap-8" @submit.prevent="onSave">
+      <div class="space-y-5">
         <AdminField :label="t('admin.colTitle')" html-for="title" :error="errors.title">
           <input id="title" v-model="form.title" type="text"
-            class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-4 py-3 text-paper-100 outline-none"
+            class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-3 py-2 text-paper-100 outline-none"
             :class="{ 'border-blood-500': errors.title }" />
         </AdminField>
 
         <AdminField label="Synopsis" html-for="synopsis">
           <textarea id="synopsis" v-model="form.synopsis" rows="6"
-            class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-4 py-3 text-paper-100 outline-none" />
+            class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-3 py-2 text-paper-100 outline-none" />
         </AdminField>
 
-        <div class="grid grid-cols-2 gap-6">
+        <div class="grid grid-cols-2 gap-4">
           <AdminField :label="t('admin.colYear')" html-for="release_year">
             <input id="release_year" v-model.number="form.release_year" type="number"
-              class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-4 py-3 text-paper-100 outline-none" />
+              class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-3 py-2 text-paper-100 outline-none" />
           </AdminField>
           <AdminField label="Duration (min)" html-for="duration">
             <input id="duration" v-model.number="form.duration_minutes" type="number"
-              class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-4 py-3 text-paper-100 outline-none" />
+              class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-3 py-2 text-paper-100 outline-none" />
           </AdminField>
         </div>
 
         <AdminField label="Genres" html-for="genres">
           <select id="genres" v-model="form.genres" multiple
-            class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-4 py-3 text-paper-100 outline-none h-40">
+            class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-3 py-2 text-paper-100 outline-none h-40">
             <option v-for="g in genres" :key="g.id" :value="g.id">{{ g.name }}</option>
           </select>
         </AdminField>
@@ -185,11 +185,10 @@ watch(() => route.fullPath, load);
         <p v-if="serverError" class="text-sm text-blood-500">{{ serverError }}</p>
       </div>
 
-      <!-- Sidebar column -->
-      <div class="space-y-6">
-        <div class="frame p-6">
-          <p class="label-caps mb-3">{{ t("admin.colStatus") }}</p>
-          <p class="font-serif text-lg mb-4">
+      <div class="space-y-5">
+        <div class="frame p-5">
+          <p class="label-caps mb-2">{{ t("admin.colStatus") }}</p>
+          <p class="font-serif text-base mb-4">
             {{ form.status === "published" ? t("admin.statusPublished") : t("admin.statusDraft") }}
           </p>
           <AdminSecondaryButton @click="onToggleStatus">
@@ -198,18 +197,16 @@ watch(() => route.fullPath, load);
         </div>
 
         <template v-if="!isNew && movie">
-          <div class="frame p-6">
-            <p class="label-caps mb-3">Poster</p>
-            <img v-if="(movie as any).poster" :src="(movie as any).poster" alt="" class="w-full mb-3" />
-            <input type="file" accept="image/*" @change="onPosterChange"
-              class="w-full text-sm text-paper-300" />
+          <div class="frame p-5">
+            <p class="label-caps mb-2">Poster</p>
+            <img v-if="movie.poster" :src="movie.poster" alt="" class="w-full mb-3" />
+            <input type="file" accept="image/*" class="w-full text-xs text-paper-300" @change="onPosterChange" />
           </div>
 
-          <div class="frame p-6">
-            <p class="label-caps mb-3">Backdrop</p>
-            <img v-if="(movie as any).backdrop" :src="(movie as any).backdrop" alt="" class="w-full mb-3" />
-            <input type="file" accept="image/*" @change="onBackdropChange"
-              class="w-full text-sm text-paper-300" />
+          <div class="frame p-5">
+            <p class="label-caps mb-2">Backdrop</p>
+            <img v-if="movie.backdrop" :src="movie.backdrop" alt="" class="w-full mb-3" />
+            <input type="file" accept="image/*" class="w-full text-xs text-paper-300" @change="onBackdropChange" />
           </div>
 
           <VideoUploadWidget

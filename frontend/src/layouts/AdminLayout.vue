@@ -21,10 +21,9 @@ function isActive(item: { to: string; exact?: boolean }): boolean {
 </script>
 
 <template>
-  <div class="max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-[220px_1fr] gap-12">
-    <!-- Sidebar -->
+  <div class="max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-[200px_1fr] gap-10">
     <aside>
-      <p class="label-caps mb-4">{{ t("admin.navSection") }}</p>
+      <p class="label-caps mb-3">{{ t("admin.navSection") }}</p>
       <nav>
         <ul class="border-t border-paper-300/20">
           <li
@@ -34,7 +33,7 @@ function isActive(item: { to: string; exact?: boolean }): boolean {
           >
             <RouterLink
               :to="item.to"
-              class="block px-4 py-3 label-caps transition-colors"
+              class="block px-3 py-2.5 label-caps transition-colors"
               :style="{ transitionDuration: 'var(--duration-quick)', transitionTimingFunction: 'var(--ease-hitchcock)' }"
               :class="isActive(item)
                 ? 'text-paper-100 border-l-2 border-blood-500'
@@ -47,7 +46,6 @@ function isActive(item: { to: string; exact?: boolean }): boolean {
       </nav>
     </aside>
 
-    <!-- Content -->
     <main>
       <RouterView />
     </main>

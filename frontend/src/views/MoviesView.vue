@@ -60,7 +60,7 @@ const totalPages = computed(() => Math.max(1, Math.ceil(count.value / PAGE_SIZE)
 
       <ul
         v-else
-        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5"
       >
         <li v-for="m in items" :key="m.id">
           <PosterTile
@@ -74,7 +74,7 @@ const totalPages = computed(() => Math.max(1, Math.ceil(count.value / PAGE_SIZE)
 
       <nav
         v-if="totalPages > 1"
-        class="mt-12 flex items-center justify-between label-caps"
+        class="mt-10 flex items-center justify-between label-caps"
       >
         <button
           type="button"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, watch, onBeforeUnmount } from "vue";
 import { useRoute, useRouter, RouterLink } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useAuthStore } from "../stores/auth";
@@ -41,6 +41,7 @@ function scheduleRefresh() {
 
 onMounted(load);
 watch(episodeId, load);
+onBeforeUnmount(() => { if (refreshTimer) clearTimeout(refreshTimer); });
 </script>
 
 <template>

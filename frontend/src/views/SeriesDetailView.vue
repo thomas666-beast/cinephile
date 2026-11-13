@@ -6,6 +6,7 @@ import { catalogApi } from "../api";
 import type { SeriesDetail, SeasonItem, EpisodeItem } from "../api/types";
 import LoadingLabel from "../components/LoadingLabel.vue";
 import GenrePills from "../components/GenrePills.vue";
+import EmptyState from "../components/EmptyState.vue";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -21,7 +22,6 @@ async function load() {
   notFound.value = false;
   try {
     series.value = await catalogApi.series(String(route.params.slug));
-    // Open the first season by default
     if (series.value.seasons.length > 0 && activeSeason.value === null) {
       activeSeason.value = series.value.seasons[0].id;
     }
@@ -73,29 +73,28 @@ function playEpisode(ep: EpisodeItem) {
     <p v-else-if="notFound" class="label-caps">{{ t("common.notFound") }}</p>
 
     <article v-else-if="series">
-      <!-- Hero -->
-      <div class="relative frame overflow-hidden">
-        <div class="aspect-[16/9] bg-noir-800">
+      <!-- Backdrop as a strict rectangle -->
+      <div class="frame">
+        <div class="aspect-[16/9] bg-noir-800 overflow-hidden">
           <img
             v-if="series.backdrop"
             :src="series.backdrop"
             :alt="series.title"
-            class="w-full h-full object-cover opacity-80"
+            class="w-full h-full object-cover"
           />
-        </div>
-        <div class="absolute inset-0 bg-gradient-to-t from-noir-950 via-noir-950/60 to-transparent" />
-        <div class="absolute inset-x-0 bottom-0 p-8 md:p-12">
-          <p class="label-caps mb-3">{{ t("nav.series") }}</p>
-          <h1 class="font-serif text-4xl md:text-6xl leading-[1.02] max-w-3xl">
-            {{ series.title }}
-          </h1>
         </div>
       </div>
 
-      <!-- Meta -->
+      <!-- Caption block -->
       <div class="mt-8">
-        <p v-if="yearMeta" class="label-caps mb-4">{{ yearMeta }}</p>
-        <GenrePills :genres="series.genres" />
+        <p class="label-caps mb-2">{{ t("nav.series") }}</p>
+        <h1 class="font-serif text-3xl md:text-5xl leading-[1.05] max-w-2xl">
+          {{ series.title }}
+        </h1>
+        <p v-if="yearMeta" class="label-caps mt-4">{{ yearMeta }}</p>
+        <div class="mt-4">
+          <GenrePills :genres="series.genres" />
+        </div>
       </div>
 
       <!-- Synopsis -->
@@ -115,10 +114,11 @@ function playEpisode(ep: EpisodeItem) {
             v-for="s in series.seasons"
             :key="s.id"
             type="button"
-            class="label-caps px-4 py-2 border border-paper-300/30"
+            class="label-caps px-3 py-1.5 border transition-colors"
+            :style="{ transitionDuration: 'var(--duration-quick)', transitionTimingFunction: 'var(--ease-hitchcock)' }"
             :class="activeSeason === s.id
               ? 'bg-paper-100 text-noir-950 border-paper-100'
-              : 'hover:border-paper-100'"
+              : 'border-paper-300/30 hover:border-paper-100'"
             @click="activeSeason = s.id"
           >
             {{ t("catalog.season", { n: s.number }) }}
@@ -127,7 +127,9 @@ function playEpisode(ep: EpisodeItem) {
 
         <div v-if="currentSeason">
           <div class="flex items-baseline justify-between mb-4 pb-3 border-b border-paper-300/20">
-            <h2 class="font-serif text-2xl">{{ currentSeason.title || t("catalog.season", { n: currentSeason.number }) }}</h2>
+            <h2 class="font-serif text-xl">
+              {{ currentSeason.title || t("catalog.season", { n: currentSeason.number }) }}
+            </h2>
             <p class="label-caps">{{ episodeCountLabel(currentSeason.episodes.length) }}</p>
           </div>
 
@@ -137,14 +139,14 @@ function playEpisode(ep: EpisodeItem) {
             <li
               v-for="ep in currentSeason.episodes"
               :key="ep.id"
-              class="grid grid-cols-[auto_1fr_auto_auto] gap-4 items-center py-4 hover:bg-noir-900 transition-colors"
+              class="grid grid-cols-[auto_1fr_auto_auto] gap-4 items-center py-3 transition-colors hover:bg-noir-900"
               :style="{ transitionDuration: 'var(--duration-quick)', transitionTimingFunction: 'var(--ease-hitchcock)' }"
             >
               <span class="label-caps w-10">
                 {{ String(ep.number).padStart(2, "0") }}
               </span>
               <div>
-                <p class="font-serif text-lg leading-tight">{{ ep.title }}</p>
+                <p class="font-serif text-base leading-tight">{{ ep.title }}</p>
                 <p v-if="ep.air_date" class="label-caps mt-1">{{ ep.air_date }}</p>
               </div>
               <span v-if="ep.duration_minutes" class="label-caps">
@@ -152,7 +154,8 @@ function playEpisode(ep: EpisodeItem) {
               </span>
               <button
                 type="button"
-                class="label-caps hover:text-blood-500"
+                class="label-caps hover:text-blood-500 transition-colors"
+                :style="{ transitionDuration: 'var(--duration-quick)', transitionTimingFunction: 'var(--ease-hitchcock)' }"
                 @click="playEpisode(ep)"
               >
                 {{ t("catalog.watch") }}

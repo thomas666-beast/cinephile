@@ -31,50 +31,45 @@ onMounted(() => admin.loadStats());
     </div>
 
     <template v-else-if="admin.stats">
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Movies -->
-        <RouterLink to="/admin/movies" class="frame p-6 hover:border-paper-100 transition-colors">
-          <p class="label-caps mb-3">{{ t("admin.statsMovies") }}</p>
-          <p class="font-serif text-5xl leading-none">{{ admin.stats.movies.total }}</p>
-          <p class="label-caps mt-4 text-paper-300">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <RouterLink to="/admin/movies" class="frame p-5 hover:border-paper-100 transition-colors">
+          <p class="label-caps mb-2">{{ t("admin.statsMovies") }}</p>
+          <p class="font-serif text-4xl leading-none">{{ admin.stats.movies.total }}</p>
+          <p class="label-caps mt-3 text-paper-300">
             {{ admin.stats.movies.published }} {{ t("admin.published") }} ·
             {{ admin.stats.movies.draft }} {{ t("admin.drafts") }}
           </p>
         </RouterLink>
 
-        <!-- Series -->
-        <RouterLink to="/admin/series" class="frame p-6 hover:border-paper-100 transition-colors">
-          <p class="label-caps mb-3">{{ t("admin.statsSeries") }}</p>
-          <p class="font-serif text-5xl leading-none">{{ admin.stats.series.total }}</p>
-          <p class="label-caps mt-4 text-paper-300">
+        <RouterLink to="/admin/series" class="frame p-5 hover:border-paper-100 transition-colors">
+          <p class="label-caps mb-2">{{ t("admin.statsSeries") }}</p>
+          <p class="font-serif text-4xl leading-none">{{ admin.stats.series.total }}</p>
+          <p class="label-caps mt-3 text-paper-300">
             {{ admin.stats.series.published }} {{ t("admin.published") }} ·
             {{ admin.stats.series.draft }} {{ t("admin.drafts") }}
           </p>
         </RouterLink>
 
-        <!-- Videos -->
-        <div class="frame p-6">
-          <p class="label-caps mb-3">{{ t("admin.statsVideos") }}</p>
-          <p class="font-serif text-5xl leading-none">
+        <div class="frame p-5">
+          <p class="label-caps mb-2">{{ t("admin.statsVideos") }}</p>
+          <p class="font-serif text-4xl leading-none">
             {{ admin.stats.videos.ready + admin.stats.videos.processing + admin.stats.videos.failed }}
           </p>
-          <p class="label-caps mt-4 text-paper-300">
+          <p class="label-caps mt-3 text-paper-300">
             {{ admin.stats.videos.ready }} {{ t("admin.ready") }} ·
             {{ admin.stats.videos.processing }} {{ t("admin.processing") }} ·
             {{ admin.stats.videos.failed }} {{ t("admin.failed") }}
           </p>
         </div>
 
-        <!-- Users -->
-        <div class="frame p-6">
-          <p class="label-caps mb-3">{{ t("admin.statsUsers") }}</p>
-          <p class="font-serif text-5xl leading-none">{{ admin.stats.users.total }}</p>
+        <div class="frame p-5">
+          <p class="label-caps mb-2">{{ t("admin.statsUsers") }}</p>
+          <p class="font-serif text-4xl leading-none">{{ admin.stats.users.total }}</p>
         </div>
 
-        <!-- Active subs -->
-        <div class="frame p-6">
-          <p class="label-caps mb-3">{{ t("admin.statsActiveSubs") }}</p>
-          <p class="font-serif text-5xl leading-none">{{ admin.stats.subscriptions.active }}</p>
+        <div class="frame p-5">
+          <p class="label-caps mb-2">{{ t("admin.statsActiveSubs") }}</p>
+          <p class="font-serif text-4xl leading-none">{{ admin.stats.subscriptions.active }}</p>
         </div>
       </div>
     </template>

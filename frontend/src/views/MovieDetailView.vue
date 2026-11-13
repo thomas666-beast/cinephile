@@ -55,36 +55,36 @@ const metaLine = computed(() => {
     <p v-else-if="notFound" class="label-caps">{{ t("common.notFound") }}</p>
 
     <article v-else-if="movie">
-      <!-- Hero -->
-      <div class="relative frame overflow-hidden">
-        <div class="aspect-[16/9] bg-noir-800">
+      <!-- Backdrop as a strict rectangle, no overlay, title below -->
+      <div class="frame">
+        <div class="aspect-[16/9] bg-noir-800 overflow-hidden">
           <img
             v-if="movie.backdrop"
             :src="movie.backdrop"
             :alt="movie.title"
-            class="w-full h-full object-cover opacity-80"
+            class="w-full h-full object-cover"
           />
-        </div>
-        <div class="absolute inset-0 bg-gradient-to-t from-noir-950 via-noir-950/60 to-transparent" />
-        <div class="absolute inset-x-0 bottom-0 p-8 md:p-12">
-          <p class="label-caps mb-3">{{ t("nav.movies") }}</p>
-          <h1 class="font-serif text-4xl md:text-6xl leading-[1.02] max-w-3xl">
-            {{ movie.title }}
-          </h1>
         </div>
       </div>
 
-      <!-- Meta + action -->
-      <div class="grid md:grid-cols-[1fr_auto] gap-6 items-start mt-8">
+      <!-- Caption block: label, title, meta, action -->
+      <div class="mt-8 grid md:grid-cols-[1fr_auto] gap-6 items-start">
         <div>
-          <p v-if="metaLine.length" class="label-caps mb-4">
+          <p class="label-caps mb-2">{{ t("nav.movies") }}</p>
+          <h1 class="font-serif text-3xl md:text-5xl leading-[1.05] max-w-2xl">
+            {{ movie.title }}
+          </h1>
+          <p v-if="metaLine.length" class="label-caps mt-4">
             {{ metaLine.join(" · ") }}
           </p>
-          <GenrePills :genres="movie.genres" />
+          <div class="mt-4">
+            <GenrePills :genres="movie.genres" />
+          </div>
         </div>
         <button
           type="button"
-          class="bg-blood-500 hover:bg-blood-700 text-paper-100 label-caps px-8 py-4"
+          class="bg-blood-500 hover:bg-blood-700 text-paper-100 label-caps px-5 py-2.5 transition-colors"
+          :style="{ transitionDuration: 'var(--duration-quick)', transitionTimingFunction: 'var(--ease-hitchcock)' }"
           @click="router.push({ name: 'watch-movie', params: { slug: movie.slug } })"
         >
           {{ t("catalog.watch") }}

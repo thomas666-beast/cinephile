@@ -19,7 +19,7 @@ onMounted(async () => {
   if (auth.user) await subs.loadCurrent();
 });
 
-function formatPrice(priceCents: number, currency: string): string {
+function formatPrice(priceCents: number): string {
   return (priceCents / 100).toFixed(2);
 }
 
@@ -40,11 +40,9 @@ async function onSubscribe(slug: string) {
     await subs.subscribe(slug);
     router.push({ name: "my-account" });
   } catch (e: any) {
-    if (e?.response?.status === 409) {
-      error.value = t("subscription.alreadySubscribed");
-    } else {
-      error.value = t("subscription.subscribeError");
-    }
+    error.value = e?.response?.status === 409
+      ? t("subscription.alreadySubscribed")
+      : t("subscription.subscribeError");
   } finally {
     subscribingSlug.value = null;
   }
@@ -52,35 +50,35 @@ async function onSubscribe(slug: string) {
 </script>
 
 <template>
-  <section class="max-w-5xl mx-auto px-6 py-24">
-    <p class="label-caps mb-3">{{ t("nav.plans") }}</p>
-    <h1 class="font-serif text-4xl md:text-5xl mb-3">{{ t("subscription.plansTitle") }}</h1>
-    <p class="text-paper-300 mb-16 max-w-xl">{{ t("subscription.plansSubtitle") }}</p>
+  <section class="max-w-4xl mx-auto px-6 py-16">
+    <p class="label-caps mb-2">{{ t("nav.plans") }}</p>
+    <h1 class="font-serif text-3xl md:text-4xl mb-2">{{ t("subscription.plansTitle") }}</h1>
+    <p class="text-paper-300 mb-12 max-w-lg">{{ t("subscription.plansSubtitle") }}</p>
 
     <p v-if="subs.loadingPlans" class="label-caps">{{ t("common.loading") }}</p>
     <p v-else-if="error" class="text-blood-500 mb-6">{{ error }}</p>
 
-    <ul v-else class="grid md:grid-cols-2 gap-6">
+    <ul v-else class="grid md:grid-cols-2 gap-5">
       <li
         v-for="plan in subs.plans"
         :key="plan.id"
-        class="frame p-8 flex flex-col"
+        class="frame p-6 flex flex-col"
         :class="{ 'border-paper-100': currentPlanSlug === plan.slug }"
       >
-        <p class="label-caps mb-4">
+        <p class="label-caps mb-3">
           {{ plan.name }}
-          <span v-if="currentPlanSlug === plan.slug" class="ml-3 text-paper-100">
+          <span v-if="currentPlanSlug === plan.slug" class="ml-2 text-paper-100">
             · {{ t("subscription.currentPlan") }}
           </span>
         </p>
 
-        <p class="font-serif text-5xl leading-none mb-2">
-          {{ formatPrice(plan.price_cents, plan.currency) }}
-          <span class="text-2xl align-baseline">{{ plan.currency }}</span>
+        <p class="font-serif text-4xl leading-none mb-1">
+          {{ formatPrice(plan.price_cents) }}
+          <span class="text-xl align-baseline">{{ plan.currency }}</span>
         </p>
-        <p class="label-caps mb-8">/ {{ periodLabel(plan.billing_period) }}</p>
+        <p class="label-caps mb-6">/ {{ periodLabel(plan.billing_period) }}</p>
 
-        <p v-if="plan.description" class="text-paper-300 mb-8">
+        <p v-if="plan.description" class="text-paper-300 text-sm mb-6">
           {{ plan.description }}
         </p>
 
@@ -88,7 +86,7 @@ async function onSubscribe(slug: string) {
           <button
             v-if="currentPlanSlug !== plan.slug"
             type="button"
-            class="w-full bg-blood-500 hover:bg-blood-700 text-paper-100 label-caps py-4 disabled:opacity-60"
+            class="w-full bg-blood-500 hover:bg-blood-700 text-paper-100 label-caps py-2.5 disabled:opacity-60"
             :disabled="subscribingSlug === plan.slug"
             @click="onSubscribe(plan.slug)"
           >
@@ -97,7 +95,7 @@ async function onSubscribe(slug: string) {
           <RouterLink
             v-else
             to="/my-account"
-            class="block w-full text-center frame py-4 label-caps hover:border-paper-100"
+            class="block w-full text-center frame py-2.5 label-caps hover:border-paper-100"
           >
             {{ t("subscription.currentPlan") }}
           </RouterLink>
@@ -105,7 +103,7 @@ async function onSubscribe(slug: string) {
       </li>
     </ul>
 
-    <p v-if="!subs.loadingPlans && subs.plans.length === 0" class="label-caps mt-12">
+    <p v-if="!subs.loadingPlans && subs.plans.length === 0" class="label-caps mt-10">
       {{ t("common.noResults") }}
     </p>
   </section>

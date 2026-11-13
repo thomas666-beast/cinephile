@@ -6,7 +6,7 @@ const props = defineProps<{
   to: { name: string; params: { slug: string } };
   title: string;
   posterUrl: string | null;
-  meta: string | null;   // pre-formatted (e.g., "2010" or "2017–2024")
+  meta: string | null;
 }>();
 
 const imageSrc = computed(() => props.posterUrl ?? "");
@@ -15,7 +15,8 @@ const imageSrc = computed(() => props.posterUrl ?? "");
 <template>
   <RouterLink
     :to="to"
-    class="block frame group"
+    class="block frame group transition-colors"
+    :style="{ transitionDuration: 'var(--duration-quick)', transitionTimingFunction: 'var(--ease-hitchcock)' }"
   >
     <div class="aspect-[2/3] bg-noir-800 overflow-hidden">
       <img
@@ -27,16 +28,14 @@ const imageSrc = computed(() => props.posterUrl ?? "");
       />
     </div>
     <div class="p-3 border-t border-paper-300/20">
-      <p class="font-serif text-lg leading-tight">{{ title }}</p>
+      <p class="font-serif text-base leading-tight">{{ title }}</p>
       <p v-if="meta" class="label-caps mt-1">{{ meta }}</p>
     </div>
   </RouterLink>
 </template>
 
 <style scoped>
-/* The one permitted motion: a slow image dim on hover, not a lift or shadow. */
-.group:hover img {
-  opacity: 0.85;
-  transition: opacity var(--duration-quick) var(--ease-hitchcock);
+.group:hover {
+  border-color: var(--color-paper-100);
 }
 </style>

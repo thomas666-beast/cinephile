@@ -9,7 +9,8 @@ defineProps<{
   <button
     :type="type ?? 'button'"
     :disabled="disabled"
-    class="frame px-5 py-3 label-caps hover:border-paper-100 disabled:opacity-60 disabled:cursor-not-allowed"
+    class="frame px-4 py-2 label-caps hover:border-paper-100 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+    :style="{ transitionDuration: 'var(--duration-quick)', transitionTimingFunction: 'var(--ease-hitchcock)' }"
   >
     <slot />
   </button>

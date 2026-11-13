@@ -51,6 +51,7 @@ class AdminEpisodeSerializer(serializers.ModelSerializer):
 
 
 class AdminSeasonSerializer(serializers.ModelSerializer):
+    series = serializers.SlugRelatedField(slug_field="slug", queryset=Series.objects.all())
     episodes = AdminEpisodeSerializer(many=True, read_only=True)
 
     class Meta:

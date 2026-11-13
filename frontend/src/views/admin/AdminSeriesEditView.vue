@@ -80,10 +80,7 @@ async function onSave() {
 
 async function addSeason() {
   if (!series.value) return;
-  await adminApi.createSeason({
-    series: series.value.slug,
-    number: newSeasonNumber.value,
-  });
+  await adminApi.createSeason({ series: series.value.slug, number: newSeasonNumber.value });
   await load();
 }
 
@@ -117,32 +114,32 @@ watch(() => route.fullPath, load);
 
     <p v-if="loading" class="label-caps py-16 text-center">{{ t("common.loading") }}</p>
 
-    <form v-else class="grid lg:grid-cols-[1fr_360px] gap-10" @submit.prevent="onSave">
-      <div class="space-y-6">
+    <form v-else class="grid lg:grid-cols-[1fr_320px] gap-8" @submit.prevent="onSave">
+      <div class="space-y-5">
         <AdminField :label="t('admin.colTitle')" html-for="title">
           <input id="title" v-model="form.title" type="text"
-            class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-4 py-3 text-paper-100 outline-none" />
+            class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-3 py-2 text-paper-100 outline-none" />
         </AdminField>
 
         <AdminField label="Synopsis" html-for="synopsis">
           <textarea id="synopsis" v-model="form.synopsis" rows="6"
-            class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-4 py-3 text-paper-100 outline-none" />
+            class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-3 py-2 text-paper-100 outline-none" />
         </AdminField>
 
-        <div class="grid grid-cols-2 gap-6">
+        <div class="grid grid-cols-2 gap-4">
           <AdminField label="Start year" html-for="start_year">
             <input id="start_year" v-model.number="form.start_year" type="number"
-              class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-4 py-3 text-paper-100 outline-none" />
+              class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-3 py-2 text-paper-100 outline-none" />
           </AdminField>
           <AdminField label="End year" html-for="end_year">
             <input id="end_year" v-model.number="form.end_year" type="number"
-              class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-4 py-3 text-paper-100 outline-none" />
+              class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-3 py-2 text-paper-100 outline-none" />
           </AdminField>
         </div>
 
         <AdminField label="Genres" html-for="genres">
           <select id="genres" v-model="form.genres" multiple
-            class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-4 py-3 text-paper-100 outline-none h-40">
+            class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-3 py-2 text-paper-100 outline-none h-40">
             <option v-for="g in genres" :key="g.id" :value="g.id">{{ g.name }}</option>
           </select>
         </AdminField>
@@ -150,10 +147,10 @@ watch(() => route.fullPath, load);
         <p v-if="serverError" class="text-sm text-blood-500">{{ serverError }}</p>
       </div>
 
-      <div class="space-y-6">
-        <div class="frame p-6">
-          <p class="label-caps mb-3">{{ t("admin.colStatus") }}</p>
-          <p class="font-serif text-lg mb-4">
+      <div class="space-y-5">
+        <div class="frame p-5">
+          <p class="label-caps mb-2">{{ t("admin.colStatus") }}</p>
+          <p class="font-serif text-base mb-4">
             {{ form.status === "published" ? t("admin.statusPublished") : t("admin.statusDraft") }}
           </p>
           <AdminSecondaryButton @click="togglePublish">
@@ -163,10 +160,10 @@ watch(() => route.fullPath, load);
       </div>
     </form>
 
-    <section v-if="!isNew && series" class="mt-16">
+    <section v-if="!isNew && series" class="mt-12">
       <p class="label-caps mb-4">{{ t("catalog.seasons") }}</p>
 
-      <div class="space-y-6">
+      <div class="space-y-5">
         <SeasonEditor
           v-for="s in series.seasons"
           :key="s.id"
@@ -176,11 +173,11 @@ watch(() => route.fullPath, load);
         />
       </div>
 
-      <div class="flex gap-3 items-end mt-8">
+      <div class="flex gap-3 items-end mt-6">
         <div>
-          <label class="label-caps block mb-2">{{ t("catalog.season", { n: "" }) }}</label>
+          <label class="label-caps block mb-2">{{ t("catalog.seasons") }}</label>
           <input v-model.number="newSeasonNumber" type="number"
-            class="bg-transparent border border-paper-300/40 focus:border-paper-100 px-4 py-2 text-paper-100 outline-none w-24" />
+            class="bg-transparent border border-paper-300/40 focus:border-paper-100 px-3 py-2 text-paper-100 outline-none w-20" />
         </div>
         <AdminSecondaryButton @click="addSeason">Add season</AdminSecondaryButton>
       </div>
