@@ -68,3 +68,23 @@ class MySubscriptionAPIView(generics.RetrieveAPIView):
         if subscription is None:
             raise Http404("No active subscription.")
         return subscription
+
+
+class CancelSubscriptionAPIView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        subscription = Subscription.objects.filter(
+            pk=pk, user=request.user,
+        ).first()
+        if not subscription:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        if subscription.status != Subscription.Status.ACTIVE:
+            return Response(
+                {"detail": f"Subscription is {subscription.status}."},
+                status=status.HTTP_409_CONFLICT,
+            )
+        subscription.status = Subscription.Status.CANCELED
+        subscription.canceled_at = timezone.now()
+        subscription.save(update_fields=["status", "canceled_at"])
+        return Response(SubscriptionSerializer(subscription).data, status=status.HTTP_200_OK)

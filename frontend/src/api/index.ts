@@ -33,7 +33,11 @@ export const subscriptionApi = {
   plans: () => api.get<SubscriptionPlan[]>("/plans/").then(r => r.data),
   subscribe: (plan_slug: string) =>
     api.post<SubscriptionResponse>("/subscriptions/", { plan_slug }).then(r => r.data),
-  me: () => api.get<SubscriptionResponse>("/subscriptions/me/").then(r => r.data),
+  me: () =>
+    // 404 is expected when there's no active subscription; handle in caller
+    api.get<SubscriptionResponse>("/subscriptions/me/").then(r => r.data),
+  cancel: (id: number) =>
+    api.post<SubscriptionResponse>(`/subscriptions/${id}/cancel/`).then(r => r.data),
 };
 
 export const playbackApi = {

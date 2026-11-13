@@ -49,3 +49,36 @@ class SubscriptionAPITests(APITestCase):
         from subscriptions.models import Subscription
         sub = Subscription.objects.get(user=self.user)
         self.assertEqual(sub.status, Subscription.Status.EXPIRED)
+
+    def test_cancel_own_subscription(self):
+        resp = self.client.post(reverse("v1:subscription-create"), {"plan_slug": "monthly"})
+        sub_id = resp.data["id"]
+        resp = self.client.post(reverse("v1:subscription-cancel", args=[sub_id]))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["status"], "canceled")
+        # Now /me/ returns 404
+        resp = self.client.get(reverse("v1:subscription-me"))
+        self.assertEqual(resp.status_code, 404)
+
+
+    def test_cannot_cancel_someone_elses(self):
+        # Create Bob's subscription
+        bob = make_user(email="bob2@example.com")
+        bob_plan = make_plan(name="Bob's Plan")
+        bob_sub = make_subscription(user=bob, plan=bob_plan)
+
+        # As self.user (from setUp), try to cancel Bob's
+        resp = self.client.post(reverse("v1:subscription-cancel", args=[bob_sub.id]))
+        self.assertEqual(resp.status_code, 404)
+
+        # Bob's subscription is untouched
+        bob_sub.refresh_from_db()
+        self.assertEqual(bob_sub.status, "active")
+
+
+    def test_cancel_already_canceled_409(self):
+        resp = self.client.post(reverse("v1:subscription-create"), {"plan_slug": "monthly"})
+        sub_id = resp.data["id"]
+        self.client.post(reverse("v1:subscription-cancel", args=[sub_id]))
+        resp = self.client.post(reverse("v1:subscription-cancel", args=[sub_id]))
+        self.assertEqual(resp.status_code, 409)

@@ -27,6 +27,8 @@ async function onSignOut() {
           <li><RouterLink to="/">{{ t("nav.home") }}</RouterLink></li>
           <li><RouterLink to="/movies">{{ t("nav.movies") }}</RouterLink></li>
           <li><RouterLink to="/series">{{ t("nav.series") }}</RouterLink></li>
+          <li><RouterLink to="/plans">{{ t("nav.plans") }}</RouterLink></li>
+
           <li v-if="!auth.user">
             <RouterLink to="/sign-in">{{ t("nav.signIn") }}</RouterLink>
           </li>
@@ -42,6 +44,9 @@ async function onSignOut() {
             <button type="button" class="hover:text-paper-100" @click="onSignOut">
               {{ t("nav.signOut") }}
             </button>
+          </li>
+          <li v-if="auth.user">
+            <RouterLink to="/my-account">{{ t("nav.myAccount") }}</RouterLink>
           </li>
         </ul>
       </nav>
