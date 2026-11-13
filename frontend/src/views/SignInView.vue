@@ -44,7 +44,7 @@ async function onSubmit() {
 </script>
 
 <template>
-  <section class="max-w-sm mx-auto px-6 py-16">
+  <section class="max-w-xl mx-auto px-6 py-16">
     <p class="label-caps mb-2">{{ t("nav.signIn") }}</p>
     <h1 class="font-serif text-3xl mb-2">{{ t("auth.signInTitle") }}</h1>
     <p class="text-paper-300 text-sm mb-10">{{ t("auth.signInSubtitle") }}</p>
@@ -57,8 +57,7 @@ async function onSubmit() {
           v-model="form.email"
           type="email"
           autocomplete="email"
-          class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-3 py-2 text-paper-100 outline-none transition-colors"
-          :style="{ transitionDuration: 'var(--duration-quick)', transitionTimingFunction: 'var(--ease-hitchcock)' }"
+          class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-3 py-2 text-paper-100 outline-none"
           :class="{ 'border-blood-500': errors.email }"
         />
         <p v-if="errors.email" class="mt-2 text-sm text-blood-500">{{ errors.email }}</p>
@@ -71,8 +70,7 @@ async function onSubmit() {
           v-model="form.password"
           type="password"
           autocomplete="current-password"
-          class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-3 py-2 text-paper-100 outline-none transition-colors"
-          :style="{ transitionDuration: 'var(--duration-quick)', transitionTimingFunction: 'var(--ease-hitchcock)' }"
+          class="w-full bg-transparent border border-paper-300/40 focus:border-paper-100 px-3 py-2 text-paper-100 outline-none"
           :class="{ 'border-blood-500': errors.password }"
         />
         <p v-if="errors.password" class="mt-2 text-sm text-blood-500">{{ errors.password }}</p>
@@ -82,8 +80,7 @@ async function onSubmit() {
 
       <button
         type="submit"
-        class="w-full bg-blood-500 hover:bg-blood-700 text-paper-100 label-caps py-2.5 disabled:opacity-60 transition-colors"
-        :style="{ transitionDuration: 'var(--duration-quick)', transitionTimingFunction: 'var(--ease-hitchcock)' }"
+        class="w-full bg-blood-500 hover:bg-blood-700 text-paper-100 label-caps py-2.5 disabled:opacity-60"
         :disabled="submitting"
       >
         {{ submitting ? t("auth.signingIn") : t("auth.signInCta") }}
@@ -92,7 +89,7 @@ async function onSubmit() {
 
     <p class="mt-10 label-caps">
       {{ t("auth.registerLinkPrompt") }}
-      <RouterLink to="/register" class="ml-2 text-paper-100 border-b border-blood-500 pb-0.5">
+      <RouterLink to="/register" class="ml-2 text-paper-100 border-b border-blood-500 pb-0.5 whitespace-nowrap">
         {{ t("nav.register") }}
       </RouterLink>
     </p>

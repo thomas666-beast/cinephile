@@ -5,6 +5,7 @@ import { useI18n } from "vue-i18n";
 import { useAuthStore } from "../stores/auth";
 import { usePlayback } from "../composables/usePlayback";
 import HlsPlayer from "../components/HlsPlayer.vue";
+import { historyApi } from "../api";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -41,6 +42,21 @@ function scheduleRefresh() {
 
 function retry() { load(); }
 
+async function onProgress(data: { time: number; duration: number }) {
+  if (!state.value || state.value.kind !== 'ready' || !state.value.data.content_id) return;
+  
+  try {
+    await historyApi.save({
+      content_type: "movie",
+      content_id: state.value.data.content_id,
+      progress_seconds: data.time,
+      duration_seconds: data.duration,
+    });
+  } catch (e) {
+    console.error("Failed to save progress", e);
+  }
+}
+
 onMounted(load);
 watch(slug, load);
 onBeforeUnmount(() => { if (refreshTimer) clearTimeout(refreshTimer); });
@@ -57,6 +73,7 @@ onBeforeUnmount(() => { if (refreshTimer) clearTimeout(refreshTimer); });
         v-if="state.kind === 'ready' && state.data.hls_manifest_url"
         :src="state.data.hls_manifest_url"
         autoplay
+        @progress="onProgress"
       />
       <div v-else class="aspect-[16/9] flex items-center justify-center px-8 text-center">
         <p v-if="state.kind === 'loading' || state.kind === 'idle'" class="label-caps">

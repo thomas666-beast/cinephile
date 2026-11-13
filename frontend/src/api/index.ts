@@ -2,7 +2,7 @@ import { api } from "./client";
 import type {
   HomeResponse, MovieDetail, MovieListItem, Paginated,
   SeriesDetail, SeriesListItem, Genre, MeResponse,
-  SubscriptionPlan, SubscriptionResponse, PlaybackResponse,
+  SubscriptionPlan, SubscriptionResponse, PlaybackResponse, SearchResponse
 } from "./types";
 
 export const catalogApi = {
@@ -16,6 +16,8 @@ export const catalogApi = {
   series: (slug: string) =>
     api.get<SeriesDetail>(`/series/${slug}/`).then(r => r.data),
   genres: () => api.get<Genre[]>("/genres/").then(r => r.data),
+  search: (q: string, type: "all" | "movie" | "series" = "all", page = 1) =>
+      api.get<SearchResponse>("/search/", { params: { q, type, page } }).then(r => r.data),
 };
 
 export const authApi = {
@@ -146,4 +148,23 @@ export const adminApi = {
       },
     }).then(r => r.data);
   },
+};
+
+export interface WatchProgressResponse {
+  id: number;
+  content_type: "movie" | "episode";
+  content_id: number;
+  title: string;
+  poster: string | null;
+  slug: string;
+  progress_seconds: number;
+  duration_seconds: number;
+  percent: number;
+  updated_at: string;
+}
+
+export const historyApi = {
+  save: (data: { content_type: string; content_id: number; progress_seconds: number; duration_seconds: number }) =>
+    api.post("/history/progress/", data).then(r => r.data),
+  list: () => api.get<WatchProgressResponse[]>("/history/").then(r => r.data),
 };

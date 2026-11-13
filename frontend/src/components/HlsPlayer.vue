@@ -12,6 +12,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "ended"): void;
   (e: "error", msg: string): void;
+  (e: "progress", data: { time: number; duration: number }): void; // <-- ADD THIS
 }>();
 
 const { t } = useI18n();
@@ -72,8 +73,21 @@ function onLoadedMetadata() {
   duration.value = Number.isFinite(video.duration) ? video.duration : 0;
 }
 
+let lastEmit = 0;
 function onTimeUpdate() {
-  if (videoRef.value) currentTime.value = videoRef.value.currentTime;
+  if (videoRef.value) {
+    currentTime.value = videoRef.value.currentTime;
+    
+    // Emit progress every 10 seconds
+    const now = Date.now();
+    if (now - lastEmit > 10000) {
+      emit("progress", { 
+        time: videoRef.value.currentTime, 
+        duration: videoRef.value.duration 
+      });
+      lastEmit = now;
+    }
+  }
 }
 
 function togglePlay() {

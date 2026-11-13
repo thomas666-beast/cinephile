@@ -1,6 +1,4 @@
 from django.db.models import Prefetch
-from rest_framework import generics, views
-from rest_framework.response import Response
 
 from catalog.models import Genre, Movie, Series, Season, Episode, PublishStatus
 from .serializers import (
@@ -8,6 +6,11 @@ from .serializers import (
     SeriesListSerializer, SeriesDetailSerializer,
 )
 
+from django.utils import timezone
+from rest_framework import permissions, views, generics
+from rest_framework.response import Response
+from catalog.history_models import WatchProgress
+from .serializers import WatchProgressSerializer
 
 class PublishedMovieQuerysetMixin:
     """Only published movies are exposed via the public API."""
@@ -82,3 +85,54 @@ class HomeAPIView(views.APIView):
             "latest_movies": MovieListSerializer(latest_movies, many=True, context={"request": request}).data,
             "latest_series": SeriesListSerializer(latest_series, many=True, context={"request": request}).data,
         })
+
+
+class SaveWatchProgressAPIView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        content_type = request.data.get("content_type")
+        content_id = request.data.get("content_id")
+        progress_seconds = float(request.data.get("progress_seconds", 0))
+        duration_seconds = float(request.data.get("duration_seconds", 0))
+
+        if content_type == "movie":
+            movie = Movie.objects.filter(pk=content_id).first()
+            episode = None
+        elif content_type == "episode":
+            movie = None
+            episode = Episode.objects.filter(pk=content_id).first()
+        else:
+            return Response({"detail": "Invalid content type."}, status=400)
+
+        if not (movie or episode):
+            return Response({"detail": "Content not found."}, status=404)
+
+        # If watched more than 95%, consider it finished and remove it from history
+        if duration_seconds > 0 and (progress_seconds / duration_seconds) > 0.95:
+            WatchProgress.objects.filter(user=request.user, movie=movie, episode=episode).delete()
+            return Response({"status": "finished"})
+
+        # Update or create the progress record
+        progress, created = WatchProgress.objects.update_or_create(
+            user=request.user,
+            movie=movie,
+            episode=episode,
+            defaults={
+                "progress_seconds": progress_seconds,
+                "duration_seconds": duration_seconds,
+            }
+        )
+        return Response(WatchProgressSerializer(progress).data)
+
+
+class WatchHistoryAPIView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        # Only return the last 10 items to keep the home page clean
+        history = WatchProgress.objects.filter(user=request.user).select_related(
+            "movie", "episode", "episode__season", "episode__season__series"
+        ).order_by("-updated_at")[:10]
+        
+        return Response(WatchProgressSerializer(history, many=True).data)

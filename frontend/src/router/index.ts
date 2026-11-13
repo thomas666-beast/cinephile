@@ -71,5 +71,10 @@ export const router = createRouter({
         { path: "genres", name: "admin-genres", component: () => import("../views/admin/AdminGenresView.vue") },
       ],
     },
+    {
+      path: "/search",
+      name: "search",
+      component: () => import("../views/SearchView.vue"),
+    },
   ],
 });

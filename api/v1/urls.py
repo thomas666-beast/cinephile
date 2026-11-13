@@ -7,6 +7,8 @@ from subscriptions import views as subscription_views
 from . import admin_views
 from . import playback_views, stream_views
 
+from . import search_views
+
 from rest_framework.routers import DefaultRouter
 from .admin_content_views import (
     AdminGenreViewSet, AdminMovieViewSet, AdminSeriesViewSet,
@@ -76,4 +78,10 @@ urlpatterns = [
     # Admin videos
     path("admin/videos/", admin_views.VideoUploadAPIView.as_view(), name="admin-video-upload"),
     path("admin/videos/<int:pk>/complete/", admin_views.CompleteVideoUploadAPIView.as_view(), name="admin-video-complete"),
+
+     # Search
+     path("search/", search_views.SearchAPIView.as_view(), name="search"),
+
+    path("history/progress/", views.SaveWatchProgressAPIView.as_view(), name="history-save"),
+    path("history/", views.WatchHistoryAPIView.as_view(), name="history-list"),
 ] + router.urls

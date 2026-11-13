@@ -22,6 +22,7 @@ export default {
     register: "Create account",
     myAccount: "My account",
     language: "Language",
+    search: "Search",
   },
   home: {
     heroTitle: "Stories that hold you in suspense.",
@@ -29,6 +30,7 @@ export default {
     latestMovies: "Latest movies",
     latestSeries: "Latest series",
     emptyCatalog: "The catalog is being prepared. Check back shortly.",
+    continueWatching: "Continue watching",
   },
   catalog: {
     releaseYear: "Release year",
@@ -190,5 +192,16 @@ export default {
     noRows: "No items yet.",
 
     requiredField: "Required.",
-  }
+  },
+  search: {
+    placeholder: "Search movies and series…",
+    resultsFor: "Results for “{query}”",
+    noQuery: "Type something to search.",
+    noResults: "No results for “{query}”.",
+    filterAll: "All",
+    filterMovies: "Movies",
+    filterSeries: "Series",
+    moviesCount: "{n} movie(s)",
+    seriesCount: "{n} series",
+  },
 };

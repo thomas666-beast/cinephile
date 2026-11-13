@@ -113,3 +113,10 @@ export interface SubscriptionResponse {
   canceled_at: string | null;
   created_at: string;
 }
+
+export interface SearchResponse {
+  query: string;
+  type: "all" | "movie" | "series";
+  movies: { count: number; results: MovieListItem[] };
+  series: { count: number; results: SeriesListItem[] };
+}

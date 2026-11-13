@@ -65,7 +65,7 @@ async function onSubmit() {
 </script>
 
 <template>
-  <section class="max-w-sm mx-auto px-6 py-16">
+  <section class="max-w-xl mx-auto px-6 py-16">
     <p class="label-caps mb-2">{{ t("nav.register") }}</p>
     <h1 class="font-serif text-3xl mb-2">{{ t("auth.registerTitle") }}</h1>
     <p class="text-paper-300 text-sm mb-10">{{ t("auth.registerSubtitle") }}</p>
@@ -119,7 +119,7 @@ async function onSubmit() {
 
     <p class="mt-10 label-caps">
       {{ t("auth.signInLinkPrompt") }}
-      <RouterLink to="/sign-in" class="ml-2 text-paper-100 border-b border-blood-500 pb-0.5">
+      <RouterLink to="/sign-in" class="ml-2 text-paper-100 border-b border-blood-500 pb-0.5 whitespace-nowrap">
         {{ t("nav.signIn") }}
       </RouterLink>
     </p>
