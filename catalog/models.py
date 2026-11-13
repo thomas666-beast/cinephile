@@ -18,6 +18,16 @@ def video_upload_path(instance, filename):
     parent_id = instance.movie_id or instance.episode_id
     return f"videos/{parent_type}/{parent_id}/{uuid.uuid4().hex}.{ext}"
 
+def hls_output_dir(instance) -> str:
+    """
+    Root directory for this asset's HLS output, relative to MEDIA_ROOT.
+    Keyed by asset id so re-uploads get distinct output; the previous
+    rendition set is cleaned up separately if needed.
+    """
+    parent_type = "movies" if instance.movie_id else "episodes"
+    parent_id = instance.movie_id or instance.episode_id
+    return f"hls/{parent_type}/{parent_id}/{instance.pk}"
+
 class PublishStatus(models.TextChoices):
     DRAFT = "draft", "Draft"
     PUBLISHED = "published", "Published"

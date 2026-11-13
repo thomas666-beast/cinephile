@@ -7,6 +7,9 @@ from .models import Genre, Movie, Series, Season, Episode
 from .forms import VideoAssetForm
 from .models import VideoAsset
 
+from django.contrib import messages
+from .tasks import transcode_video_asset
+
 @admin.register(Genre)
 class GenreAdmin(admin.ModelAdmin):
     list_display = ("name", "slug", "movie_count", "series_count")
@@ -126,10 +129,33 @@ class VideoAssetInline(admin.StackedInline):
 @admin.register(VideoAsset)
 class VideoAssetAdmin(admin.ModelAdmin):
     form = VideoAssetForm
-    list_display = ("__str__", "status", "content_type", "content_id", "file_size_bytes", "created_at")
+    list_display = (
+        "__str__", "status", "content_type", "content_id",
+        "file_size_bytes", "created_at",
+    )
     list_filter = ("status",)
     search_fields = ("original_filename", "movie__title", "episode__title")
     readonly_fields = (
         "original_filename", "file_size_bytes", "hls_manifest_path",
         "processing_error", "created_at", "updated_at",
     )
+    actions = ["retranscode"]
+
+    @admin.action(description="Re-transcode selected videos")
+    def retranscode(self, request, queryset):
+        queued = 0
+        for asset in queryset:
+            if not asset.video_file:
+                continue
+            # Reset to uploaded so the task's status check passes.
+            VideoAsset.objects.filter(pk=asset.pk).update(
+                status=VideoAsset.Status.UPLOADED,
+                hls_manifest_path="",
+                processing_error="",
+            )
+            transcode_video_asset.delay(asset.pk)
+            queued += 1
+        self.message_user(
+            request, f"Queued {queued} asset(s) for re-transcoding.",
+            level=messages.INFO,
+        )
