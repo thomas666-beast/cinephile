@@ -16,7 +16,8 @@ const { t } = useI18n();
         </RouterLink>
         <ul class="flex items-center gap-6 label-caps">
           <li><RouterLink to="/">{{ t("nav.home") }}</RouterLink></li>
-          <!-- More nav added with the screens that back them -->
+          <li><RouterLink to="/movies">{{ t("nav.movies") }}</RouterLink></li>
+          <li><RouterLink to="/series">{{ t("nav.series") }}</RouterLink></li>
         </ul>
       </nav>
     </header>
@@ -35,3 +36,11 @@ const { t } = useI18n();
     </footer>
   </div>
 </template>
+
+<style scoped>
+nav :deep(a.router-link-exact-active) {
+  color: var(--color-paper-100);
+  border-bottom: 1px solid var(--color-blood-500);
+  padding-bottom: 2px;
+}
+</style>
